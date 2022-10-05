@@ -6,11 +6,13 @@ import { AppComponent } from './app.component';
 import { LoginComponent } from './pages/login/login.component';
 import { AllBenchmarkConfigsComponent } from './pages/all-benchmark-configs/all-benchmark-configs.component';
 import { FormsModule } from '@angular/forms';
+import { PublicGuard } from './guards/public-guard';
+import { PrivateGuard } from './guards/private-guard';
 
 @NgModule({
   declarations: [AppComponent, LoginComponent, AllBenchmarkConfigsComponent],
   imports: [BrowserModule, AppRoutingModule, FormsModule],
-  providers: [],
+  providers: [PublicGuard, PrivateGuard],
   bootstrap: [AppComponent],
 })
 export class AppModule {}
