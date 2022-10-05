@@ -1,0 +1,77 @@
+<div class="main">
+  <div class="login-form">
+    <div class="d-flex flex-column mb-3">
+
+      <div class="p-2 pmc-logo">
+        <img src="https://app.pointmotion.us/assets/images/sound_health_logo@3x.png" alt="logo">
+        <h4 class="mt-2">Point Motion</h4>
+      </div>
+
+      <div *ngIf="formErrorMsg" class="formErrorMsg">
+        {{ formErrorMsg }}
+      </div>
+
+      <!-- Show loading spinner -->
+      <div *ngIf="step === -1" class="spinner pt-4">
+        <div class="spinner-border" role="status">
+          <span class="sr-only">Loading...</span>
+        </div>
+      </div>
+
+      <form (ngSubmit)="submit($event)">
+        <div *ngIf="step === 0">
+          <div class="p-2 input-form">
+            <p><span class="guide-text">Enter your phone to sign in or create an account</span></p>
+            <div class="col-sm mt-4">
+              <select id="countryCode" class="form-select" required>
+                <option value="{{ countryCode }}" selected>{{ selectedCountry }}</option>
+                <option value="+1">+1 Canada</option>
+                <option value="+91">+91 India</option>
+                <!-- <option *ngFor="let country of countryCodesList | keyvalue" [value]="country.key">
+                  {{ country.value }}
+                </option> -->
+              </select>
+            </div>
+
+            <div class="col-sm mt-4 mb-4">
+              <label class="visually-hidden" for="phoneNumber">your phone number</label>
+              <div class="input-group">
+                <div class="input-group-text">✆</div>
+                <input #phoneNumber type="text" class="form-control" id="phoneNumber" placeholder="Your phone number"
+                  required>
+              </div>
+            </div>
+
+          </div>
+          <div class=" p-2 terms">
+            <p><span>By signing up, you agree to our terms of service and privacy policy.</span></p>
+          </div>
+          <div class="p-2 submit-btn">
+            <button type="submit" class="btn btn-primary btn-lg col-12 btn-block w-100">Get One-Time-Password on
+              Phone</button>
+          </div>
+        </div>
+
+        <div *ngIf="step === 1">
+          <div class="p-2 input-form">
+            <p><span class="guide-text">An SMS with the One-Time-Password (OTP) has been sent to {{ fullPhoneNumber
+                }}.</span></p>
+            <div class="col-sm mt-4 mb-4">
+              <label class="visually-hidden" for="otpCode">your code</label>
+              <div class="input-group">
+                <div class="input-group-text">✆</div>
+                <input type="text" class="form-control" id="otpCode" placeholder="Your code">
+              </div>
+            </div>
+            <a role="button" (click)="resetForm()">Did not get the One-Time-Password (OTP)?</a>
+          </div>
+          <div class="p-2 submit-btn">
+            <button type="submit" class="btn btn-primary btn-lg col-12 btn-block w-100">SUBMIT &gt;</button>
+          </div>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+</div>

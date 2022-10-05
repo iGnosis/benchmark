@@ -1,1 +1,16 @@
 /* You can add global styles to this file, and also import other style files */
+
+// @include "node"
+@import "@webpixels/css/core/functions";
+
+// Your theme's variables
+@import "./app/variables";
+
+// Webpixels' CSS
+@import "@webpixels/css/base";
+@import "@webpixels/css/forms";
+@import "@webpixels/css/components";
+@import "@webpixels/css/utilities";
+
+
+@import "./app/custom"
