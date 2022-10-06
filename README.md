@@ -1,27 +1,18 @@
 # ShBenchmark
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 13.3.0.
+## Tauri
+Tauri is a toolkit that helps developers make applications for the major desktop platforms - using virtually any frontend framework in existence. The core is built with Rust, and the CLI leverages Node.js making Tauri a genuinely polyglot approach to creating and maintaining great apps.
+
+## FRONTEND
+- sh_benchmark uses angular app that is created with angular-cli as a frontend.
+- All the rust code and tauri specific config will be part of `src-tauri` folder.
+## RUST
+- Rust is needed, as Tauri uses RUST for the backend.
+- Follow this guide, to Install Rust: https://tauri.app/v1/guides/getting-started/prerequisites#installing
 
 ## Development server
-
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
-
-## Code scaffolding
-
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+Run `npm run tauri dev` to start the dev server which will start watching the files, will re-build your app and opens it in a desktop window.
 
 ## Build
-
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
-
-## Running unit tests
-
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+Run `npm run tauri build` to create an Installer for your operating system.
+For more Info, read docs: https://tauri.app/v1/guides/building/
