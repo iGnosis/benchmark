@@ -10,10 +10,17 @@ import { PublicGuard } from './guards/public-guard';
 import { PrivateGuard } from './guards/private-guard';
 import { NewBenchmarkConfigComponent } from './pages/new-benchmark-config/new-benchmark-config.component';
 import { EditBenchmarkConfigComponent } from './pages/edit-benchmark-config/edit-benchmark-config.component';
+import { CommonModule } from '@angular/common';
 
 @NgModule({
-  declarations: [AppComponent, LoginComponent, AllBenchmarkConfigsComponent, NewBenchmarkConfigComponent, EditBenchmarkConfigComponent],
-  imports: [BrowserModule, AppRoutingModule, FormsModule],
+  declarations: [
+    AppComponent,
+    LoginComponent,
+    AllBenchmarkConfigsComponent,
+    NewBenchmarkConfigComponent,
+    EditBenchmarkConfigComponent,
+  ],
+  imports: [BrowserModule, AppRoutingModule, FormsModule, CommonModule],
   providers: [PublicGuard, PrivateGuard],
   bootstrap: [AppComponent],
 })
