@@ -1,0 +1,69 @@
+<div style="height: 100vh; width: 100vw;">
+
+  <div class="pt-10 px-10 mx-auto">
+    <div class="row">
+      <div class="col-lg-6 d-flex justify-content-start align-items-center">
+        <p style="font-weight: 700;" class="h1 text-primary mb-12">Edit Benchmark Configuration</p>
+      </div>
+      <div class="col-lg-6 d-flex justify-content-end align-items-start">
+        <button (click)="runBenchmark()" class="btn btn-primary"><i class="bi bi-play-fill px-2"></i>Run New
+          Benchmark</button>
+      </div>
+    </div>
+
+    <div class="p-6">
+      <div class="card shadow-none border-2 border-dashed border-primary-hover position-relative">
+        <div class="d-flex justify-content-center px-5 py-5">
+          <label for="file_upload" class="position-absolute w-full h-full top-0 start-0 cursor-pointer">
+            <input (change)="onFileUpload($event, 'withPrompts')" id="file_upload" name="file_upload" type="file"
+              class="visually-hidden">
+          </label>
+          <div class="text-center">
+            <div class="d-flex m-3 align-items-center justify-content-center">
+              <p class="h1 text-primary font-bold">Upload Screen Recorded video</p>
+            </div>
+            <p class="h2 text-gray text-muted m-3">
+              Add the video with prompts here.
+            </p>
+            <div class="text-2xl m-3">
+              <i class="bi bi-upload"></i>
+            </div>
+            <p class="h5 text-gray text-muted m-3">
+              Click to upload a file.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="p-6">
+      <div class="card shadow-none border-2 border-dashed border-primary-hover position-relative">
+        <div class="d-flex justify-content-center px-5 py-5">
+          <label for="file_upload" class="position-absolute w-full h-full top-0 start-0 cursor-pointer">
+            <input (change)="onFileUpload($event, 'withoutPrompts')" id="file_upload" name="file_upload" type="file"
+              class="visually-hidden">
+          </label>
+          <div class="text-center">
+            <div class="d-flex m-3 align-items-center justify-content-center">
+              <p class="h1 text-primary font-bold">Upload Raw video</p>
+            </div>
+            <p class="h2 text-gray text-muted m-3">
+              Add the video <span class="text-dark"><u>without</u></span> prompts here.
+            </p>
+            <div class="text-2xl m-3">
+              <i class="bi bi-upload"></i>
+            </div>
+            <p class="h5 text-gray text-muted m-3">
+              Click to upload a file.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+
+    </div>
+
+  </div>
+</div>

@@ -168,7 +168,7 @@ export class LoginComponent implements OnInit {
       });
       console.log('user set successfully');
 
-      this.router.navigate(['all_configs']);
+      this.router.navigate(['app/configs/all']);
     }
   }
 
