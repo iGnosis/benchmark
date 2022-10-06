@@ -1,0 +1,72 @@
+<div style="height: 100vh; width: 99vw;">
+
+  <div class="py-10 px-10 mx-auto">
+    <div class="row">
+      <div class="col-lg-6 d-flex justify-content-start align-items-center">
+        <p style="font-weight: 700;" class="h1 text-primary mb-12">All Benchmarks</p>
+      </div>
+      <div class="col-lg-6 d-flex justify-content-end align-items-start">
+        <button (click)="redirectToAllBenchmarkConfig()" class="btn btn-primary">Done</button>
+      </div>
+    </div>
+
+
+
+    <div class="py-4">
+      <div class="px-2 py-3 text-dark" style="font-weight: 600; line-height: 24px;">
+        All Benchmarks Table
+      </div>
+
+      <div class="table-responsive border rounded-3 table-border">
+        <table class="table table-hover table-nowrap">
+          <thead class="table-light">
+            <tr>
+              <th scope="col">Activity</th>
+              <th scope="col">Accuracy</th>
+              <th scope="col">Created At</th>
+              <th scope="col">Download Report</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let benchmarkRun of previousBenchmarkRuns">
+              <td>
+                {{benchmarkRun.activity | titlecase}}
+              </td>
+              <td>
+                {{benchmarkRun.accuracy + ' ms'}}
+              </td>
+              <td>
+                {{benchmarkRun.createdAt}}
+              </td>
+              <td>
+                <button (click)="downloadBenchmarkReport(benchmarkRun.id)"
+                  class="btn btn-light text-primary text-sm download-btn">Download</button>
+              </td>
+              <td class="text-end">
+                <div class="dropdown">
+                  <a class="text-muted" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true"
+                    aria-expanded="false">
+                    <i class="bi bi-three-dots-vertical"></i>
+                  </a>
+                  <div class="dropdown-menu dropdown-menu-end">
+                    <a href="#!" class="dropdown-item">
+                      Action
+                    </a>
+                    <a href="#!" class="dropdown-item">
+                      Another action
+                    </a>
+                    <a href="#!" class="dropdown-item">
+                      Something else here
+                    </a>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>

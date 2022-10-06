@@ -11,6 +11,7 @@ import { PrivateGuard } from './guards/private-guard';
 import { NewBenchmarkConfigComponent } from './pages/new-benchmark-config/new-benchmark-config.component';
 import { EditBenchmarkConfigComponent } from './pages/edit-benchmark-config/edit-benchmark-config.component';
 import { CommonModule } from '@angular/common';
+import { AllBenchmarksComponent } from './pages/all-benchmarks/all-benchmarks.component';
 
 @NgModule({
   declarations: [
@@ -19,6 +20,7 @@ import { CommonModule } from '@angular/common';
     AllBenchmarkConfigsComponent,
     NewBenchmarkConfigComponent,
     EditBenchmarkConfigComponent,
+    AllBenchmarksComponent,
   ],
   imports: [BrowserModule, AppRoutingModule, FormsModule, CommonModule],
   providers: [PublicGuard, PrivateGuard],

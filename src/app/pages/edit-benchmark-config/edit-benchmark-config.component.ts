@@ -1,8 +1,8 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 
-interface Prompt {
+export interface Prompt {
   id: string;
   prompt: string;
   initiationTime: string;
@@ -12,7 +12,7 @@ interface Prompt {
   state: 'success' | 'failure';
 }
 
-interface BenchmarkRun {
+export interface BenchmarkRun {
   id: string;
   activity: string;
   accuracy: number;
@@ -25,7 +25,7 @@ interface BenchmarkRun {
   styleUrls: ['./edit-benchmark-config.component.scss'],
 })
 export class EditBenchmarkConfigComponent implements OnInit, OnDestroy {
-  constructor(private route: ActivatedRoute) {}
+  constructor(private route: ActivatedRoute, private router: Router) {}
 
   private routeSub!: Subscription;
   private configId!: string;
@@ -113,6 +113,7 @@ export class EditBenchmarkConfigComponent implements OnInit, OnDestroy {
 
   runBenchmark() {
     console.log('run:benchmark::', this.configId);
+    this.router.navigate(['app/benchmarks/all']);
   }
 
   downloadBenchmarkReport(benchmarkRunId: string) {
