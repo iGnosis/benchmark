@@ -4,7 +4,7 @@
     "beforeBuildCommand": "npm run build",
     "beforeDevCommand": "npm run start",
     "devPath": "http://localhost:4200",
-    "distDir": "../src"
+    "distDir": "../dist"
   },
   "package": {
     "productName": "sh-benchmark",
