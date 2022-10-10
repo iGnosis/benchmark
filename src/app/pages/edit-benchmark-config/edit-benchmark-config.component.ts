@@ -100,7 +100,8 @@ export class EditBenchmarkConfigComponent implements OnInit, OnDestroy {
     },
   ];
 
-  file!: File; // Variable to store file
+  rawFile!: File;
+  screenRecFile!: File;
 
   ngOnInit(): void {
     this.routeSub = this.route.params.subscribe((params) => {
@@ -109,12 +110,41 @@ export class EditBenchmarkConfigComponent implements OnInit, OnDestroy {
     });
   }
 
-  async onFileUpload(event: any, type: 'withPrompts' | 'withoutPrompts') {
-    // console.log(event);
-    this.file = event.target.files[0];
-    console.log('file::', this.file);
-    console.log('fileType::', type);
+  async onRawVideoUpload(event: any) {
+    this.rawFile = event.target.files[0];
+    const { webcamUploadUrl } = await this.getUploadUrl();
 
+    console.log('uploading:url:webcamUploadUrl::', webcamUploadUrl);
+    this.uploadService.uploadVideo(webcamUploadUrl, this.rawFile).subscribe({
+      next: (data) => {
+        console.log('upload:success::', data);
+      },
+      error: (err) => {
+        console.error('upload:Error::', err);
+      },
+    });
+  }
+
+  async onScreenRecUpload(event: any) {
+    this.screenRecFile = event.target.files[0];
+    const { screenCaptureUploadUrl } = await this.getUploadUrl();
+    console.log(
+      'uploading:url:screenCaptureUploadUrl::',
+      screenCaptureUploadUrl
+    );
+    this.uploadService
+      .uploadVideo(screenCaptureUploadUrl, this.rawFile)
+      .subscribe({
+        next: (data) => {
+          console.log('upload:success::', data);
+        },
+        error: (err) => {
+          console.error('upload:Error::', err);
+        },
+      });
+  }
+
+  async getUploadUrl() {
     const videoUploadUrlsResp: VideoUploadUrlsResp =
       await this.gqlService.gqlRequest(
         GqlConstants.GET_VIDEO_UPLOAD_URLS,
@@ -123,18 +153,7 @@ export class EditBenchmarkConfigComponent implements OnInit, OnDestroy {
         },
         true
       );
-    console.log('upload:url::', videoUploadUrlsResp.uploadBenchmarkVideos.data);
-
-    const { screenCaptureUploadUrl, webcamUploadUrl } =
-      videoUploadUrlsResp.uploadBenchmarkVideos.data;
-
-    if (type === 'withPrompts') {
-      this.uploadService
-        .uploadVideo(screenCaptureUploadUrl, this.file)
-        .subscribe();
-    } else {
-      this.uploadService.uploadVideo(webcamUploadUrl, this.file).subscribe();
-    }
+    return videoUploadUrlsResp.uploadBenchmarkVideos.data;
   }
 
   ngOnDestroy() {

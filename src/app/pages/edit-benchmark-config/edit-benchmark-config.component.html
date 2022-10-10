@@ -14,8 +14,8 @@
     <div class="p-6">
       <div class="card shadow-none border-2 border-dashed border-primary-hover position-relative">
         <div class="d-flex justify-content-center px-5 py-5">
-          <label for="file_upload" class="position-absolute w-full h-full top-0 start-0 cursor-pointer">
-            <input (change)="onFileUpload($event, 'withPrompts')" id="file_upload" name="file_upload" type="file"
+          <label for="screenRec_upload" class="position-absolute w-full h-full top-0 start-0 cursor-pointer">
+            <input (change)="onScreenRecUpload($event)" id="screenRec_upload" name="screenRec_upload" type="file"
               class="visually-hidden">
           </label>
           <div class="text-center">
@@ -39,8 +39,8 @@
     <div class="p-6">
       <div class="card shadow-none border-2 border-dashed border-primary-hover position-relative">
         <div class="d-flex justify-content-center px-5 py-5">
-          <label for="file_upload" class="position-absolute w-full h-full top-0 start-0 cursor-pointer">
-            <input (change)="onFileUpload($event, 'withoutPrompts')" id="file_upload" name="file_upload" type="file"
+          <label for="rawVideo_upload" class="position-absolute w-full h-full top-0 start-0 cursor-pointer">
+            <input (change)="onRawVideoUpload($event)" id="rawVideo_upload" name="rawVideo_upload" type="file"
               class="visually-hidden">
           </label>
           <div class="text-center">
@@ -167,7 +167,8 @@
                 {{benchmarkRun.createdAt}}
               </td>
               <td>
-                <button (click)="downloadBenchmarkReport(benchmarkRun.id)" class="btn btn-light text-primary text-sm download-btn">Download</button>
+                <button (click)="downloadBenchmarkReport(benchmarkRun.id)"
+                  class="btn btn-light text-primary text-sm download-btn">Download</button>
               </td>
               <td class="text-end">
                 <div class="dropdown">
