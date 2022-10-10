@@ -34,34 +34,36 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let config of configList" (click)="editBenchmarkConfig(config.id)">
+          <tr *ngFor="let config of benchmarkConfigsList" (click)="editBenchmarkConfig(config.id)">
             <td class="text-lg" scope="col">
               <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="" id="flexCheckRow1">
+                <input class="form-check-input" type="checkbox" value="" id="flexCheckRow1"
+                  [checked]="config.rawVideoUrl ? true: false" readonly>
                 <label class="form-check-label" for="flexCheckRow1"></label>
               </div>
             </td>
 
             <td class="text-lg" scope="col">
               <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="" id="flexCheckRow1">
+                <input class="form-check-input" type="checkbox" value="" id="flexCheckRow1"
+                  [checked]="config.screenRecordingUrl ? true: false" readonly>
                 <label class="form-check-label" for="flexCheckRow1"></label>
               </div>
             </td>
             <td>
-              {{config.activity}}
+              {{config.game.gameName.split('_').join(' ') | titlecase}}
             </td>
             <td>
-              {{config.bestAccuracy}}
+              {{'N/A'}}
             </td>
             <td>
-              {{config.lastRun}}
+              {{'N/A'}}
             </td>
             <td>
-              {{config.createdAt}}
+              {{getDateFromISOString(config.createdAt)}}
             </td>
             <td>
-              {{config.setupUsage}}
+              {{'N/A'}}
             </td>
             <td class="text-end">
               <div class="dropdown">

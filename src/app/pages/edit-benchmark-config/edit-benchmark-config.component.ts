@@ -1,6 +1,10 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { GqlConstants } from 'src/app/services/graphql/gql-constants';
+import { GraphqlService } from 'src/app/services/graphql/graphql.service';
+import { UploadService } from 'src/app/services/upload/upload.service';
+import { VideoUploadUrlsResp } from 'src/types/main';
 
 export interface Prompt {
   id: string;
@@ -25,10 +29,15 @@ export interface BenchmarkRun {
   styleUrls: ['./edit-benchmark-config.component.scss'],
 })
 export class EditBenchmarkConfigComponent implements OnInit, OnDestroy {
-  constructor(private route: ActivatedRoute, private router: Router) {}
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private gqlService: GraphqlService,
+    private uploadService: UploadService
+  ) {}
 
   private routeSub!: Subscription;
-  private configId!: string;
+  private benchmarkConfig!: string;
 
   // TODO: remove mock data, Integrate APIs.
   promptsList: Prompt[] = [
@@ -91,20 +100,41 @@ export class EditBenchmarkConfigComponent implements OnInit, OnDestroy {
     },
   ];
 
-  file: File | null = null; // Variable to store file
+  file!: File; // Variable to store file
 
   ngOnInit(): void {
     this.routeSub = this.route.params.subscribe((params) => {
       console.log('config:id::', params['id']);
-      this.configId = params['id'];
+      this.benchmarkConfig = params['id'];
     });
   }
 
-  onFileUpload(event: any, type: 'withPrompts' | 'withoutPrompts') {
+  async onFileUpload(event: any, type: 'withPrompts' | 'withoutPrompts') {
     // console.log(event);
     this.file = event.target.files[0];
     console.log('file::', this.file);
     console.log('fileType::', type);
+
+    const videoUploadUrlsResp: VideoUploadUrlsResp =
+      await this.gqlService.gqlRequest(
+        GqlConstants.GET_VIDEO_UPLOAD_URLS,
+        {
+          benchmarkConfigId: this.benchmarkConfig,
+        },
+        true
+      );
+    console.log('upload:url::', videoUploadUrlsResp.uploadBenchmarkVideos.data);
+
+    const { screenCaptureUploadUrl, webcamUploadUrl } =
+      videoUploadUrlsResp.uploadBenchmarkVideos.data;
+
+    if (type === 'withPrompts') {
+      this.uploadService
+        .uploadVideo(screenCaptureUploadUrl, this.file)
+        .subscribe();
+    } else {
+      this.uploadService.uploadVideo(webcamUploadUrl, this.file).subscribe();
+    }
   }
 
   ngOnDestroy() {
@@ -112,7 +142,7 @@ export class EditBenchmarkConfigComponent implements OnInit, OnDestroy {
   }
 
   runBenchmark() {
-    console.log('run:benchmark::', this.configId);
+    console.log('run:benchmark::', this.benchmarkConfig);
     this.router.navigate(['app/benchmarks/all']);
   }
 
