@@ -81,37 +81,35 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let prompt of promptsList">
-
-
+            <tr *ngFor="let analytics of analyticsList">
               <td class="text-lg" scope="col">
                 <div class="form-check">
-                  <input class="form-check-input" name="prompt_radio" type="radio" value={{prompt.id}}
+                  <input class="form-check-input" name="prompt_radio" type="radio" value={{analytics.prompt.id}}
                     id="promptSelectRadio">
                   <!-- <label class="form-check-label" for="promptSelectRadio"></label> -->
                 </div>
               </td>
 
               <td>
-                {{prompt.prompt | titlecase}}
+                {{analytics.prompt.type | titlecase}}
               </td>
               <td>
-                {{prompt.initiationTime + ' ms'}}
+                {{'N/A'}}
               </td>
               <td>
-                {{prompt.completionTime + ' ms'}}
+                {{analytics.reaction.completionTimeInMs ? analytics.reaction.completionTimeInMs + ' ms' : 'N/A'}}
               </td>
               <td>
-                {{prompt.startTime}}
+                {{analytics.prompt.timestamp}}
               </td>
               <td>
-                {{prompt.endTime}}
+                {{analytics.result.timestamp}}
               </td>
               <td>
 
-                <span *ngIf="prompt.state === 'success'"
+                <span *ngIf="analytics.result.type === 'success'"
                   class="badge rounded-pill text-xs bg-soft-success text-success">Success</span>
-                <span *ngIf="prompt.state === 'failure'"
+                <span *ngIf="analytics.result.type === 'failure'"
                   class="badge rounded-pill text-xs bg-soft-danger text-danger">Failure</span>
               </td>
               <td class="text-end">
@@ -156,15 +154,15 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let benchmarkRun of previousBenchmarkRuns">
+            <tr *ngFor="let benchmarkRun of benchmarkRunsList">
               <td>
-                {{benchmarkRun.activity | titlecase}}
+                {{'n/a' | titlecase}}
               </td>
               <td>
-                {{benchmarkRun.accuracy + ' ms'}}
+                {{'N/A'}}
               </td>
               <td>
-                {{benchmarkRun.createdAt}}
+                {{getDateFromISOString(benchmarkRun.createdAt)}}
               </td>
               <td>
                 <button (click)="downloadBenchmarkReport(benchmarkRun.id)"

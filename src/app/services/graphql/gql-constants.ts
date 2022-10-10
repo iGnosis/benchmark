@@ -34,13 +34,51 @@ export const GqlConstants = {
     }
   }
 }`,
-
   GET_VIDEO_UPLOAD_URLS: `mutation UploadBenchmarkVideos($benchmarkConfigId: ID!) {
   uploadBenchmarkVideos(benchmarkConfigId: $benchmarkConfigId) {
     data {
       webcamUploadUrl
       screenCaptureUploadUrl
     }
+  }
+}`,
+  GET_BENCHMARK_CONFIG: `query GetBenchmarkConfig($benchmarkConfigId: uuid!) {
+  game_benchmark_config_by_pk(id: $benchmarkConfigId) {
+    id
+    createdAt
+    updatedAt
+    screenRecordingUrl
+    rawVideoUrl
+    originalGameId
+    manualCalculations
+    game {
+      game_name: game
+    }
+  }
+}
+`,
+  GET_GAME_BENCHMARKS_FOR_CONFIG: `query GetGameBenchmarks($originalGameId: uuid!) {
+  game_benchmarks(where: {originalGameId: {_eq: $originalGameId}}) {
+    analytics
+    createdAt
+    gameId
+    id
+    originalGameId
+    systemSpec
+  }
+}`,
+  GET_ALL_BENCHMARKS: `query GetAllGameBenchmarks {
+  game_benchmarks(order_by: {createdAt: desc}) {
+    createdAt
+    gameId
+    id
+    originalGameId
+    systemSpec
+  }
+}`,
+  GET_GAME_ANALYTICS: `query GetGameAnalytics($gameId: uuid!) {
+  game_by_pk(id: $gameId) {
+    analytics
   }
 }`,
 };

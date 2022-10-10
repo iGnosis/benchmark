@@ -31,13 +31,13 @@
           <tbody>
             <tr *ngFor="let benchmarkRun of previousBenchmarkRuns">
               <td>
-                {{benchmarkRun.activity | titlecase}}
+                {{ 'n/a' | titlecase}}
               </td>
               <td>
-                {{benchmarkRun.accuracy + ' ms'}}
+                {{ 'N/A'}}
               </td>
               <td>
-                {{benchmarkRun.createdAt}}
+                {{getDateFromISOString(benchmarkRun.createdAt)}}
               </td>
               <td>
                 <button (click)="downloadBenchmarkReport(benchmarkRun.id)"
