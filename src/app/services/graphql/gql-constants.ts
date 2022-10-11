@@ -81,4 +81,32 @@ export const GqlConstants = {
     analytics
   }
 }`,
+  GET_RECENT_ACTIVITIES: `query GetRecentActivities($limit: Int = 10, $offset: Int = 0) {
+  game(limit: $limit, order_by: {createdAt: desc}, offset: $offset, where: {endedAt: {_is_null: false}}) {
+    id
+    game_name: game
+    patient
+    patientByPatient {
+      nickname
+    }
+    aggregate_analytics(where: {key: {_eq: "avgAchievementRatio"}}) {
+      key
+      value
+    }
+    endedAt
+    createdAt
+    repsCompleted
+    totalDuration
+  }
+}`,
+  INSERT_NEW_BENCHMARK_CONFIG: `mutation InsertNewBenchmarkConfig($originalGameId: uuid!) {
+  insert_game_benchmark_config_one(object: {originalGameId: $originalGameId}, on_conflict: {constraint: game_benchmark_config_originalGameId_key}) {
+    id
+  }
+}`,
+  GET_CONFIG_ID: `query GetConfigId($originalGameId: uuid!) {
+  game_benchmark_config(where: {originalGameId: {_eq: $originalGameId}}) {
+    id
+  }
+}`,
 };

@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { map, Subscription } from 'rxjs';
 import { GqlConstants } from 'src/app/services/graphql/gql-constants';
 import { GraphqlService } from 'src/app/services/graphql/graphql.service';
 import { UploadService } from 'src/app/services/upload/upload.service';
@@ -93,7 +93,9 @@ export class EditBenchmarkConfigComponent implements OnInit, OnDestroy {
     console.log('uploading:url:webcamUploadUrl::', webcamUploadUrl);
     this.uploadService.uploadVideo(webcamUploadUrl, this.rawFile).subscribe({
       next: (data) => {
-        console.log('upload:success::', data);
+        if (data.status === 200) {
+          console.log('upload:success::', data.status);
+        }
       },
       error: (err) => {
         console.error('upload:Error::', err);
@@ -112,7 +114,9 @@ export class EditBenchmarkConfigComponent implements OnInit, OnDestroy {
       .uploadVideo(screenCaptureUploadUrl, this.rawFile)
       .subscribe({
         next: (data) => {
-          console.log('upload:success::', data);
+          if (data.status === 200) {
+            console.log('upload:success::', data.status);
+          }
         },
         error: (err) => {
           console.error('upload:Error::', err);
