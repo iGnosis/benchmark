@@ -1,9 +1,13 @@
+import { HttpClient } from '@angular/common/http';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { map, Subscription } from 'rxjs';
+import { DownloadService } from 'src/app/services/download/download.service';
 import { GqlConstants } from 'src/app/services/graphql/gql-constants';
 import { GraphqlService } from 'src/app/services/graphql/graphql.service';
+import { JwtService } from 'src/app/services/jwt/jwt.service';
 import { UploadService } from 'src/app/services/upload/upload.service';
+import { environment } from 'src/environments/environment';
 import {
   AnalyticsDTO,
   BenchmarkConfig,
@@ -31,7 +35,10 @@ export class EditBenchmarkConfigComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private gqlService: GraphqlService,
-    private uploadService: UploadService
+    private uploadService: UploadService,
+    private http: HttpClient,
+    private jwtService: JwtService,
+    private downloadService: DownloadService
   ) {}
 
   private routeSub!: Subscription;
@@ -50,10 +57,10 @@ export class EditBenchmarkConfigComponent implements OnInit, OnDestroy {
       this.benchmarkConfigId = params['id'];
       console.log('config:id::', this.benchmarkConfigId);
     });
-    this.getBenchmarkConfig(this.benchmarkConfigId);
+    this.initTables(this.benchmarkConfigId);
   }
 
-  async getBenchmarkConfig(benchmarkConfigId: string) {
+  async initTables(benchmarkConfigId: string) {
     const benchmarkConfigResp = await this.gqlService.gqlRequest(
       GqlConstants.GET_BENCHMARK_CONFIG,
       { benchmarkConfigId },
@@ -75,7 +82,6 @@ export class EditBenchmarkConfigComponent implements OnInit, OnDestroy {
     this.benchmarkRunsList = benchmarkRunResp.game_benchmarks;
     console.log('benchmarks::runs::', benchmarkRunResp.game_benchmarks);
 
-    // TODO: get analytics using originalGamId
     const gameAnalyticsResp = await this.gqlService.gqlRequest(
       GqlConstants.GET_GAME_ANALYTICS,
       {
@@ -95,6 +101,14 @@ export class EditBenchmarkConfigComponent implements OnInit, OnDestroy {
       next: (data) => {
         if (data.status === 200) {
           console.log('upload:success::', data.status);
+          this.gqlService.gqlRequest(
+            GqlConstants.TRANSCODE_VIDEO,
+            {
+              benchmarkConfigid: this.benchmarkConfigId,
+              videoType: 'webcam',
+            },
+            true
+          );
         }
       },
       error: (err) => {
@@ -116,6 +130,14 @@ export class EditBenchmarkConfigComponent implements OnInit, OnDestroy {
         next: (data) => {
           if (data.status === 200) {
             console.log('upload:success::', data.status);
+            this.gqlService.gqlRequest(
+              GqlConstants.TRANSCODE_VIDEO,
+              {
+                benchmarkConfigid: this.benchmarkConfigId,
+                videoType: 'screenCapture',
+              },
+              true
+            );
           }
         },
         error: (err) => {
@@ -148,6 +170,25 @@ export class EditBenchmarkConfigComponent implements OnInit, OnDestroy {
   downloadBenchmarkReport(benchmarkRunId: string) {
     // TODO: generate/download a benchmark report
     console.log('download::benchmarkRun::id:', benchmarkRunId);
+    console.log('benchmark:config::id:', this.benchmarkConfigId);
+
+    this.downloadService
+      .downloadBenchmarkReport(benchmarkRunId, this.benchmarkConfigId)
+      .subscribe((arrayBuffer) => {
+        if (arrayBuffer) {
+          var a = document.createElement('a');
+          document.body.appendChild(a);
+          const blob = new Blob([arrayBuffer], {
+            type: 'application/vnd.ms-excel',
+          });
+
+          a.href = URL.createObjectURL(blob);
+          a.download = `${benchmarkRunId}-report.xlsx`;
+          a.click();
+          URL.revokeObjectURL(a.href);
+          a.remove();
+        }
+      });
   }
 
   getDateFromISOString(IsoString: string): string {

@@ -6,6 +6,7 @@ export const environment = {
   production: false,
   name: 'default',
   gqlEndpoint: 'https://api.dev.pointmotioncontrol.com/v1/graphql',
+  apiEndpoint: 'https://services.dev.pointmotioncontrol.com',
 };
 
 /*

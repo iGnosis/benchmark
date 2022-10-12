@@ -109,4 +109,11 @@ export const GqlConstants = {
     id
   }
 }`,
+  TRANSCODE_VIDEO: `mutation TranscodeVideo($benchmarkConfigId: ID!, $videoType: transcodeVideoType!) {
+  transcodeVideo(benchmarkConfigId: $benchmarkConfigId, type: $videoType) {
+    data {
+      status
+    }
+  }
+}`,
 };

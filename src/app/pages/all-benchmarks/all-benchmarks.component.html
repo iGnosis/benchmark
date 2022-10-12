@@ -40,7 +40,7 @@
                 {{getDateFromISOString(benchmarkRun.createdAt)}}
               </td>
               <td>
-                <button (click)="downloadBenchmarkReport(benchmarkRun.id)"
+                <button (click)="downloadBenchmarkReport(benchmarkRun.gameId, benchmarkRun.originalGameId)"
                   class="btn btn-light text-primary text-sm download-btn">Download</button>
               </td>
               <td class="text-end">
