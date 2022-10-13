@@ -21,8 +21,7 @@ export class AllBenchmarksComponent implements OnInit {
     const benchmarkRunsResp: { game_benchmarks: BenchmarkRun[] } =
       await this.gqlService.gqlRequest(
         GqlConstants.GET_ALL_BENCHMARKS,
-        {},
-        true
+        {}
       );
     this.previousBenchmarkRuns = benchmarkRunsResp.game_benchmarks;
   }

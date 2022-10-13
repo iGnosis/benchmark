@@ -45,10 +45,16 @@ export class EditBenchmarkConfigComponent implements OnInit, OnDestroy {
   private benchmarkConfigId!: string;
   private benchmarkConfig!: BenchmarkConfig;
 
+  // Pagination
+  offset = 0;
+  pageLimit = 10;
+  currentPage = 1;
+  noOfPagesRequired: number[] = [];
+  totalBenchmarkRunsCount = 0;
+
+  originalGameId!: string;
   analyticsList!: AnalyticsDTO[];
-
   benchmarkRunsList!: BenchmarkRun[];
-
   rawFile!: File;
   screenRecFile!: File;
 
@@ -60,27 +66,72 @@ export class EditBenchmarkConfigComponent implements OnInit, OnDestroy {
     this.initTables(this.benchmarkConfigId);
   }
 
+  decPage() {
+    if (this.currentPage > 1) {
+      this.changePage(this.currentPage - 1);
+    }
+  }
+
+  incPage() {
+    if (this.currentPage < this.noOfPagesRequired.length) {
+      this.changePage(this.currentPage + 1);
+    }
+  }
+
+  changePage(pageNo: number) {
+    console.log('changePage', pageNo);
+    this.currentPage = pageNo;
+
+    this.offset = (pageNo * this.pageLimit) - this.pageLimit;
+    console.log('this.offset:', this.offset);
+    this.getGameBenchmarks();
+  }
+
+  async getGameBenchmarks() {
+    const benchmarkRunResp: {
+      game_benchmarks_aggregate: {
+        aggregate: {
+          count: number
+        }
+      },
+      game_benchmarks: BenchmarkRun[]
+    } =
+      await this.gqlService.gqlRequest(
+        GqlConstants.GET_GAME_BENCHMARKS_FOR_CONFIG,
+        {
+          originalGameId: this.originalGameId,
+          limit: this.pageLimit,
+          offset: this.offset
+        }
+      );
+    this.benchmarkRunsList = benchmarkRunResp.game_benchmarks;
+    console.log('benchmarks::runs::', this.benchmarkRunsList);
+    this.totalBenchmarkRunsCount = benchmarkRunResp.game_benchmarks_aggregate.aggregate.count;
+  }
+
+  noOfPagesRequiredCount() {
+    const noOfPages = Math.ceil(this.totalBenchmarkRunsCount / this.pageLimit);
+    for (let i = 1; i <= noOfPages; i++) {
+      this.noOfPagesRequired.push(i);
+    }
+    console.log('this.totalBenchmarkRunsCount:', this.totalBenchmarkRunsCount);
+    console.log('this.noOfPagesRequired:', this.noOfPagesRequired);
+    return this.noOfPagesRequired;
+  }
+
   async initTables(benchmarkConfigId: string) {
     const benchmarkConfigResp = await this.gqlService.gqlRequest(
       GqlConstants.GET_BENCHMARK_CONFIG,
-      { benchmarkConfigId },
-      true
+      { benchmarkConfigId }
     );
     this.benchmarkConfig = benchmarkConfigResp.game_benchmark_config_by_pk;
     console.log('benchmark::config:', this.benchmarkConfig);
 
     const { originalGameId } = this.benchmarkConfig;
+    this.originalGameId = originalGameId;
 
-    const benchmarkRunResp: { game_benchmarks: BenchmarkRun[] } =
-      await this.gqlService.gqlRequest(
-        GqlConstants.GET_GAME_BENCHMARKS_FOR_CONFIG,
-        {
-          originalGameId,
-        },
-        true
-      );
-    this.benchmarkRunsList = benchmarkRunResp.game_benchmarks;
-    console.log('benchmarks::runs::', benchmarkRunResp.game_benchmarks);
+    await this.getGameBenchmarks();
+    this.noOfPagesRequiredCount();
 
     const gameAnalyticsResp = await this.gqlService.gqlRequest(
       GqlConstants.GET_GAME_ANALYTICS,
@@ -95,7 +146,6 @@ export class EditBenchmarkConfigComponent implements OnInit, OnDestroy {
   async onRawVideoUpload(event: any) {
     this.rawFile = event.target.files[0];
     const { webcamUploadUrl } = await this.getUploadUrl();
-
     console.log('uploading:url:webcamUploadUrl::', webcamUploadUrl);
     this.uploadService.uploadVideo(webcamUploadUrl, this.rawFile).subscribe({
       next: (data) => {
@@ -104,10 +154,9 @@ export class EditBenchmarkConfigComponent implements OnInit, OnDestroy {
           this.gqlService.gqlRequest(
             GqlConstants.TRANSCODE_VIDEO,
             {
-              benchmarkConfigid: this.benchmarkConfigId,
+              benchmarkConfigId: this.benchmarkConfigId,
               videoType: 'webcam',
-            },
-            true
+            }
           );
         }
       },
@@ -133,10 +182,9 @@ export class EditBenchmarkConfigComponent implements OnInit, OnDestroy {
             this.gqlService.gqlRequest(
               GqlConstants.TRANSCODE_VIDEO,
               {
-                benchmarkConfigid: this.benchmarkConfigId,
+                benchmarkConfigId: this.benchmarkConfigId,
                 videoType: 'screenCapture',
-              },
-              true
+              }
             );
           }
         },
@@ -152,8 +200,7 @@ export class EditBenchmarkConfigComponent implements OnInit, OnDestroy {
         GqlConstants.GET_VIDEO_UPLOAD_URLS,
         {
           benchmarkConfigId: this.benchmarkConfigId,
-        },
-        true
+        }
       );
     return videoUploadUrlsResp.uploadBenchmarkVideos.data;
   }

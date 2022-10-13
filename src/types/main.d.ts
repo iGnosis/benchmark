@@ -17,9 +17,16 @@ export interface BenchmarkRun {
   analytics: AnalyticsDTO[];
   createdAt: string;
   gameId: string;
+  game: {
+    gameName: string;
+  };
   id: string;
   originalGameId: string;
   systemSpec: { [key: string]: string };
+  avgAccuracy: {
+    isSuccessAbsAvg: number;
+    completionTimeAbsAvg: number;
+  }
 }
 
 export interface VideoUploadUrlsResp {
@@ -49,9 +56,8 @@ export type AnalyticsPromptDTO = {
 
 export type AnalyticsReactionDTO = {
   type: string;
-  timestamp: number;
-  startTime: number;
-  completionTime: number | null;
+  timestamp: number; // placeholder value.
+  startTime: number; // placeholder value.
   completionTimeInMs: number | null;
 };
 
