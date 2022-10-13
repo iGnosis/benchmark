@@ -23,6 +23,10 @@ export interface BenchmarkRun {
   id: string;
   originalGameId: string;
   systemSpec: { [key: string]: string };
+  avgAccuracy: {
+    isSuccessAbsAvg: number;
+    completionTimeAbsAvg: number;
+  }
 }
 
 export interface VideoUploadUrlsResp {

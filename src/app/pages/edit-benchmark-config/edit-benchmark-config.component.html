@@ -147,7 +147,7 @@
           <thead class="table-light">
             <tr>
               <th scope="col">Activity</th>
-              <th scope="col">Accuracy</th>
+              <th scope="col">Avg. Completion Time Accuracy</th>
               <th scope="col">Created At</th>
               <th scope="col">Download Report</th>
               <th></th>
@@ -159,7 +159,7 @@
                 {{ benchmarkRun.game.gameName.split('_').join(' ') | titlecase}}
               </td>
               <td>
-                {{'N/A'}}
+                {{ benchmarkRun.avgAccuracy.completionTimeAbsAvg || 'N/A'}}
               </td>
               <td>
                 {{getDateFromISOString(benchmarkRun.createdAt)}}

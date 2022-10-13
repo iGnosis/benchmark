@@ -63,7 +63,7 @@ export const GqlConstants = {
         count
       }
     }
-    game_benchmarks(where: {originalGameId: {_eq: $originalGameId}}, limit: $limit, offset: $offset) {
+    game_benchmarks(where: {originalGameId: {_eq: $originalGameId}}, limit: $limit, offset: $offset, order_by: {createdAt: desc}) {
       analytics
       createdAt
       gameId
@@ -73,6 +73,7 @@ export const GqlConstants = {
       id
       originalGameId
       systemSpec
+      avgAccuracy
     }
   }`,
   GET_ALL_BENCHMARKS: `query GetAllGameBenchmarks {
