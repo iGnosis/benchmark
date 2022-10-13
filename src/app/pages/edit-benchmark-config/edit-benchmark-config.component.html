@@ -156,7 +156,7 @@
           <tbody>
             <tr *ngFor="let benchmarkRun of benchmarkRunsList">
               <td>
-                {{'n/a' | titlecase}}
+                {{ benchmarkRun.game.gameName.split('_').join(' ') | titlecase}}
               </td>
               <td>
                 {{'N/A'}}
@@ -191,6 +191,31 @@
           </tbody>
         </table>
       </div>
+    </div>
+
+    <div>
+      <nav>
+        <ul class="pagination">
+          <li class="page-item">
+            <a class="page-link" href="#">
+              <i class="bi bi-chevron-left"></i>
+            </a>
+          </li>
+    
+          <div *ngFor="let pageNo of noOfPagesRequired">
+            <li class="page-item"><a class="page-link page-{{pageNo}}" [class.active-page]="currentPage === pageNo"
+                (click)="changePage(pageNo, $event)">{{
+                pageNo }}</a>
+            </li>
+          </div>
+    
+          <li class="page-item">
+            <a class="page-link" href="#">
+              <i class="bi bi-chevron-right"></i>
+            </a>
+          </li>
+        </ul>
+      </nav>
     </div>
 
   </div>

@@ -57,16 +57,24 @@ export const GqlConstants = {
   }
 }
 `,
-  GET_GAME_BENCHMARKS_FOR_CONFIG: `query GetGameBenchmarks($originalGameId: uuid!) {
-  game_benchmarks(where: {originalGameId: {_eq: $originalGameId}}) {
-    analytics
-    createdAt
-    gameId
-    id
-    originalGameId
-    systemSpec
-  }
-}`,
+  GET_GAME_BENCHMARKS_FOR_CONFIG: `query GetGameBenchmarks($originalGameId: uuid!, $limit: Int = 10, $offset: Int = 10) {
+    game_benchmarks_aggregate(where: {originalGameId: {_eq: $originalGameId}}) {
+      aggregate {
+        count
+      }
+    }
+    game_benchmarks(where: {originalGameId: {_eq: $originalGameId}}, limit: $limit, offset: $offset) {
+      analytics
+      createdAt
+      gameId
+      game {
+        gameName: game
+      }
+      id
+      originalGameId
+      systemSpec
+    }
+  }`,
   GET_ALL_BENCHMARKS: `query GetAllGameBenchmarks {
   game_benchmarks(order_by: {createdAt: desc}) {
     createdAt

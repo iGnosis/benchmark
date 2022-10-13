@@ -17,6 +17,9 @@ export interface BenchmarkRun {
   analytics: AnalyticsDTO[];
   createdAt: string;
   gameId: string;
+  game: {
+    gameName: string;
+  };
   id: string;
   originalGameId: string;
   systemSpec: { [key: string]: string };
@@ -51,7 +54,6 @@ export type AnalyticsReactionDTO = {
   type: string;
   timestamp: number; // placeholder value.
   startTime: number; // placeholder value.
-  completionTime: number | null; // completion time in seconds.
   completionTimeInMs: number | null;
 };
 

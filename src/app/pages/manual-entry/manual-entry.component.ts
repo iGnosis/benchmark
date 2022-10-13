@@ -15,21 +15,21 @@ export enum KEY_CODE {
   styleUrls: ['./manual-entry.component.scss']
 })
 export class ManualEntryComponent implements AfterViewInit {
-  
+
   constructor(private renderer: Renderer2) { }
   isPlaying = false;
-  
+
   ngAfterViewInit(): void {
     this.video.nativeElement.addEventListener('timeupdate', () => {
       this.onTimeUpdated()
-    });  
+    });
   }
-  
+
   @ViewChild('video') video!: ElementRef;
   currentTime: number = 0;
-  currentPrompt: Prompt | undefined;
+  currentPrompt: any;
   currentMetric: any;
-  promptsList: Prompt[] = [
+  promptsList: any = [
     {
       "prompt": {
         "id": "0ff8326d-0963-4437-8d10-cb265eeda859",
@@ -121,12 +121,12 @@ export class ManualEntryComponent implements AfterViewInit {
       manual: {}
     }
   ]
-  
+
   @HostListener('window:keyup', ['$event'])
   keyEvent(event: KeyboardEvent) {
     console.log('key'+event.code)
     switch(event.code){
-      case 'ArrowLeft': 
+      case 'ArrowLeft':
         this.onBackward()
         break;
       case 'ArrowRight':
@@ -151,35 +151,35 @@ export class ManualEntryComponent implements AfterViewInit {
         break;
     }
   }
-  
+
   setCurrentTime(event: any, model: any) {
     model = this.currentTime;
   }
-  
+
   onPlay() {
     this.video.nativeElement.play();
     this.isPlaying = true;
   }
-  
+
   onPause() {
     this.video.nativeElement.pause();
     this.isPlaying = false;
   }
-  
+
   onChangePlayBackRate(rate: number) {
     this.video.nativeElement.playbackRate = rate;
   }
-  
+
   onTimeUpdated() {
     this.currentTime = this.video.nativeElement.currentTime;
   }
-  
+
   onForward() {
     this.video.nativeElement.currentTime += 0.033;
   }
-  
+
   onBackward() {
     this.video.nativeElement.currentTime -= 0.033;
   }
-  
+
 }
