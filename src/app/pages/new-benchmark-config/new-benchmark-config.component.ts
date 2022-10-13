@@ -56,8 +56,7 @@ export class NewBenchmarkConfigComponent implements OnInit {
       GqlConstants.INSERT_NEW_BENCHMARK_CONFIG,
       {
         originalGameId: gameId,
-      },
-      true
+      }
     );
 
     console.log('create::new::benchmarkConfig:', resp);
@@ -75,8 +74,7 @@ export class NewBenchmarkConfigComponent implements OnInit {
         GqlConstants.GET_CONFIG_ID,
         {
           originalGameId: gameId,
-        },
-        true
+        }
       );
       this.router.navigate([
         '/app/configs/edit/',

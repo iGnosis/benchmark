@@ -63,8 +63,7 @@ export class EditBenchmarkConfigComponent implements OnInit, OnDestroy {
   async initTables(benchmarkConfigId: string) {
     const benchmarkConfigResp = await this.gqlService.gqlRequest(
       GqlConstants.GET_BENCHMARK_CONFIG,
-      { benchmarkConfigId },
-      true
+      { benchmarkConfigId }
     );
     this.benchmarkConfig = benchmarkConfigResp.game_benchmark_config_by_pk;
     console.log('benchmark::config:', this.benchmarkConfig);
@@ -76,8 +75,7 @@ export class EditBenchmarkConfigComponent implements OnInit, OnDestroy {
         GqlConstants.GET_GAME_BENCHMARKS_FOR_CONFIG,
         {
           originalGameId,
-        },
-        true
+        }
       );
     this.benchmarkRunsList = benchmarkRunResp.game_benchmarks;
     console.log('benchmarks::runs::', benchmarkRunResp.game_benchmarks);
@@ -95,7 +93,6 @@ export class EditBenchmarkConfigComponent implements OnInit, OnDestroy {
   async onRawVideoUpload(event: any) {
     this.rawFile = event.target.files[0];
     const { webcamUploadUrl } = await this.getUploadUrl();
-
     console.log('uploading:url:webcamUploadUrl::', webcamUploadUrl);
     this.uploadService.uploadVideo(webcamUploadUrl, this.rawFile).subscribe({
       next: (data) => {
@@ -104,10 +101,9 @@ export class EditBenchmarkConfigComponent implements OnInit, OnDestroy {
           this.gqlService.gqlRequest(
             GqlConstants.TRANSCODE_VIDEO,
             {
-              benchmarkConfigid: this.benchmarkConfigId,
+              benchmarkConfigId: this.benchmarkConfigId,
               videoType: 'webcam',
-            },
-            true
+            }
           );
         }
       },
@@ -133,10 +129,9 @@ export class EditBenchmarkConfigComponent implements OnInit, OnDestroy {
             this.gqlService.gqlRequest(
               GqlConstants.TRANSCODE_VIDEO,
               {
-                benchmarkConfigid: this.benchmarkConfigId,
+                benchmarkConfigId: this.benchmarkConfigId,
                 videoType: 'screenCapture',
-              },
-              true
+              }
             );
           }
         },
@@ -152,8 +147,7 @@ export class EditBenchmarkConfigComponent implements OnInit, OnDestroy {
         GqlConstants.GET_VIDEO_UPLOAD_URLS,
         {
           benchmarkConfigId: this.benchmarkConfigId,
-        },
-        true
+        }
       );
     return videoUploadUrlsResp.uploadBenchmarkVideos.data;
   }

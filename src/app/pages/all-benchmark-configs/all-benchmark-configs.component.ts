@@ -17,8 +17,7 @@ export class AllBenchmarkConfigsComponent implements OnInit {
   async ngOnInit() {
     const benchmarkConfigs = await this.gqlService.gqlRequest(
       GqlConstants.GET_ALL_BENCHMARK_CONFIGS,
-      {},
-      true
+      {}
     );
     console.log(
       'allBenchmarkConfigs::',
