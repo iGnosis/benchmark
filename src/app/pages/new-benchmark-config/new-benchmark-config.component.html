@@ -24,22 +24,22 @@
             <th scope="col">User</th>
             <th scope="col">Date</th>
             <th scope="col"></th>
-            <th></th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let config of configList">
+          <tr *ngFor="let activity of recentGames" (click)="createNewBenchmarkConfig(activity.id)">
             <td>
-              {{config.activity}}
+              {{activity.game_name.split('_').join(' ') | titlecase}}
             </td>
             <td>
-              {{config.achievementRatio}}
+              {{activity.aggregate_analytics[0] && activity.aggregate_analytics[0].value ?
+              (activity.aggregate_analytics[0].value * 100) + '%' : 'N/A'}}
             </td>
             <td>
-              {{config.user}}
+              {{activity.patientByPatient.nickname | titlecase}}
             </td>
             <td>
-              {{config.date}}
+              {{getDateFromISOString(activity.createdAt)}}
             </td>
             <td class="text-end">
               <div class="dropdown">
@@ -63,6 +63,11 @@
           </tr>
         </tbody>
       </table>
+    </div>
+    <div class=" py-4 d-flex align-items-center justify-content-center">
+      <button *ngIf="rowsAvailable" (click)="showMoreActivities()" class="btn btn-secondary text-primary">
+        Show More <i class="bi  bi-caret-down-fill text-primary p-1"></i>
+      </button>
     </div>
   </div>
 

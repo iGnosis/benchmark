@@ -4,7 +4,7 @@
     "beforeBuildCommand": "npm run build",
     "beforeDevCommand": "npm run start",
     "devPath": "http://localhost:4200",
-    "distDir": "../src"
+    "distDir": "../dist/sh_benchmark"
   },
   "package": {
     "productName": "sh-benchmark",
@@ -29,7 +29,7 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "identifier": "com.tauri.dev",
+      "identifier": "com.pointmotion.us",
       "longDescription": "",
       "macOS": {
         "entitlements": null,

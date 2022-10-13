@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { HttpClientModule } from '@angular/common/http';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -24,7 +25,13 @@ import { ManualEntryComponent } from './pages/manual-entry/manual-entry.componen
     AllBenchmarksComponent,
     ManualEntryComponent,
   ],
-  imports: [BrowserModule, AppRoutingModule, FormsModule, CommonModule],
+  imports: [
+    BrowserModule,
+    AppRoutingModule,
+    FormsModule,
+    CommonModule,
+    HttpClientModule,
+  ],
   providers: [PublicGuard, PrivateGuard],
   bootstrap: [AppComponent],
 })
