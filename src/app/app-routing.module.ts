@@ -6,6 +6,7 @@ import { AllBenchmarkConfigsComponent } from './pages/all-benchmark-configs/all-
 import { AllBenchmarksComponent } from './pages/all-benchmarks/all-benchmarks.component';
 import { EditBenchmarkConfigComponent } from './pages/edit-benchmark-config/edit-benchmark-config.component';
 import { LoginComponent } from './pages/login/login.component';
+import { ManualEntryComponent } from './pages/manual-entry/manual-entry.component';
 import { NewBenchmarkConfigComponent } from './pages/new-benchmark-config/new-benchmark-config.component';
 
 const routes: Routes = [
@@ -21,6 +22,7 @@ const routes: Routes = [
     children: [
       { path: 'configs/all', component: AllBenchmarkConfigsComponent },
       { path: 'configs/new', component: NewBenchmarkConfigComponent },
+      { path: 'configs/edit/manual', component: ManualEntryComponent },
       { path: 'configs/edit/:id', component: EditBenchmarkConfigComponent },
       { path: 'benchmarks/all', component: AllBenchmarksComponent },
     ],

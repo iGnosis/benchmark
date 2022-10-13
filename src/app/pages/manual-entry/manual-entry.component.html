@@ -1,0 +1,75 @@
+
+    <div class="container-fluid">
+        <div class="row">
+            
+            <div class="col-8">
+                <div class="pt-6">
+                    <video #video controls="true" style="width: 100%;" [controls]="false">
+                        <source src="https://file-examples.com/storage/feb2e515cc6339d7ba1ffcd/2017/04/file_example_MP4_1280_10MG.mp4" type="video/mp4">
+                        <!-- <source src="https://file-examples.com/storage/feb2e515cc6339d7ba1ffcd/2017/04/file_example_MP4_1280_10MG.mp4" type="video/ogg"> -->
+                    </video>
+                </div>
+                <div class="">
+                    <div class="row">
+                        <div class="col">
+                            <span style="min-width: 200px;" class="pt-1">
+                                {{ currentTime }}
+                            </span>
+                        </div>
+                        <div class="col text-center">
+                            <div class="btn-group" role="group" aria-label="Basic example">
+                        
+                                <b role="button" (click)="onBackward()" class="text-xl me-2" type="button">⏪</b>
+                                <b role="button" *ngIf="!isPlaying" (click)="onPlay()" class="text-xl me-2" type="button">▶️</b>
+                                <b role="button" *ngIf="isPlaying" (click)="onPause()" class="text-xl me-2" type="button">⏸</b>
+                                <b role="button" (click)="onForward()" class="text-xl me-2" type="button">⏩</b>
+                            </div>
+                        </div>
+                        <div class="col">&nbsp;</div>
+                    </div>
+                </div>
+                <!-- <div class="">
+                    <label for="currentTime" class="form-label">Current Time</label>
+                    <input [(ngModel)]="currentTime" type="number" class="form-control" id="currentTime" placeholder="0">
+                </div> -->
+            </div>
+            <div class="col-4">
+                <div *ngIf="!currentPrompt">
+                    <h2>Prompts</h2>
+                    <div role="button" (click)="currentPrompt = prompt" class="pt-2 pb-2" *ngFor="let prompt of promptsList">
+                        <h3>
+                            {{prompt.prompt.type}} 
+                            <span *ngIf="prompt.result.score==1">✅</span>
+                            <span *ngIf="prompt.result.score!=1">◻️</span>
+                        </h3>
+                    </div>
+                </div>
+                <div class="pt-2 pb-2" *ngIf="currentPrompt">
+                    <h2 (click)="currentPrompt = undefined">🔙</h2>
+                    <h2>{{currentPrompt.prompt.type}}</h2>
+                    <div>
+                        <!-- Fix the following fields, too -->
+                        <div class="form-group">
+                            <label for="exampleInputEmail1"><u>I</u>nitiation Time</label>
+                            <input type="number"
+                                [(ngModel)]="currentPrompt.manual.initiationTimestamp"
+                                class="form-control" id="exampleInputEmail1" >
+                            <small id="emailHelp" class="form-text text-muted">When the reaction started</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="exampleInputPassword1"><u>C</u>ompletion Time</label>
+                            
+                            <input [(ngModel)]="currentPrompt.manual.completionTimestamp"
+                             type="number" class="form-control" id="exampleInputPassword1">
+                        </div>
+                        <div class="form-group form-check">
+                            <input type="checkbox" class="form-check-input" id="exampleCheck1">
+                            <label class="form-check-label" for="exampleCheck1">Success?</label>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {{ currentPrompt | json }}
