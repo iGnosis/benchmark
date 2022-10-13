@@ -197,20 +197,20 @@
       <nav>
         <ul class="pagination">
           <li class="page-item">
-            <a class="page-link" href="#">
+            <a class="page-link" (click)="decPage()">
               <i class="bi bi-chevron-left"></i>
             </a>
           </li>
-    
+
           <div *ngFor="let pageNo of noOfPagesRequired">
             <li class="page-item"><a class="page-link page-{{pageNo}}" [class.active-page]="currentPage === pageNo"
-                (click)="changePage(pageNo, $event)">{{
+                (click)="changePage(pageNo)">{{
                 pageNo }}</a>
             </li>
           </div>
-    
+
           <li class="page-item">
-            <a class="page-link" href="#">
+            <a class="page-link" (click)="incPage()">
               <i class="bi bi-chevron-right"></i>
             </a>
           </li>

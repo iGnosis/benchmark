@@ -66,7 +66,20 @@ export class EditBenchmarkConfigComponent implements OnInit, OnDestroy {
     this.initTables(this.benchmarkConfigId);
   }
 
-  changePage(pageNo: number, event: Event) {
+  decPage() {
+    if (!(this.currentPage <= 1)) {
+      this.changePage(this.currentPage - 1);
+    }
+  }
+
+
+  incPage() {
+    if (!(this.currentPage >= this.noOfPagesRequired.length)) {
+      this.changePage(this.currentPage + 1);
+    }
+  }
+
+  changePage(pageNo: number) {
     console.log('changePage', pageNo);
     this.currentPage = pageNo;
 
