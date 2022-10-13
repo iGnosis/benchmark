@@ -14,6 +14,9 @@ import { EditBenchmarkConfigComponent } from './pages/edit-benchmark-config/edit
 import { CommonModule } from '@angular/common';
 import { AllBenchmarksComponent } from './pages/all-benchmarks/all-benchmarks.component';
 import { ManualEntryComponent } from './pages/manual-entry/manual-entry.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { MatTableModule } from '@angular/material/table'
+import { MatSortModule } from '@angular/material/sort';
 
 @NgModule({
   declarations: [
@@ -31,6 +34,9 @@ import { ManualEntryComponent } from './pages/manual-entry/manual-entry.componen
     FormsModule,
     CommonModule,
     HttpClientModule,
+    BrowserAnimationsModule,
+    MatTableModule,
+    MatSortModule
   ],
   providers: [PublicGuard, PrivateGuard],
   bootstrap: [AppComponent],
