@@ -22,7 +22,7 @@ const routes: Routes = [
     children: [
       { path: 'configs/all', component: AllBenchmarkConfigsComponent },
       { path: 'configs/new', component: NewBenchmarkConfigComponent },
-      { path: 'configs/edit/manual', component: ManualEntryComponent },
+      { path: 'configs/edit/manual/:id', component: ManualEntryComponent },
       { path: 'configs/edit/:id', component: EditBenchmarkConfigComponent },
       { path: 'benchmarks/all', component: AllBenchmarksComponent },
     ],

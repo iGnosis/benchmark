@@ -49,9 +49,9 @@ export type AnalyticsPromptDTO = {
 
 export type AnalyticsReactionDTO = {
   type: string;
-  timestamp: number; // placeholder value.
-  startTime: number; // placeholder value.
-  completionTime: number | null; // completion time in seconds.
+  timestamp: number;
+  startTime: number;
+  completionTime: number | null;
   completionTimeInMs: number | null;
 };
 

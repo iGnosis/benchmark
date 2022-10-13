@@ -167,6 +167,10 @@ export class EditBenchmarkConfigComponent implements OnInit, OnDestroy {
     this.router.navigate(['app/benchmarks/all']);
   }
 
+  runManualBenchmark() {
+    this.router.navigate(['app/configs/edit/manual', this.benchmarkConfigId]);
+  }
+
   downloadBenchmarkReport(benchmarkRunId: string) {
     // TODO: generate/download a benchmark report
     console.log('download::benchmarkRun::id:', benchmarkRunId);

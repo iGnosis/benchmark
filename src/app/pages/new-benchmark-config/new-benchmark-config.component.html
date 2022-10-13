@@ -1,4 +1,4 @@
-<div style="height: 100vh; width: 100vw;">
+<div class="container-fluid">
 
   <div class="pt-10 px-10 mx-auto">
 
@@ -36,7 +36,8 @@
               (activity.aggregate_analytics[0].value * 100) + '%' : 'N/A'}}
             </td>
             <td>
-              {{activity.patientByPatient.nickname | titlecase}}
+              {{ activity.patientByPatient && activity.patientByPatient.nickname ? activity.patientByPatient.nickname
+              :'N/A' | titlecase }}
             </td>
             <td>
               {{getDateFromISOString(activity.createdAt)}}

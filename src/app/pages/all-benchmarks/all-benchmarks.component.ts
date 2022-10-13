@@ -1,11 +1,8 @@
-import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { DownloadService } from 'src/app/services/download/download.service';
 import { GqlConstants } from 'src/app/services/graphql/gql-constants';
 import { GraphqlService } from 'src/app/services/graphql/graphql.service';
-import { JwtService } from 'src/app/services/jwt/jwt.service';
-import { environment } from 'src/environments/environment';
 import { BenchmarkRun } from 'src/types/main';
 @Component({
   selector: 'app-all-benchmarks',
