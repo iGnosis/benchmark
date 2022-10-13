@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { map, Subscription } from 'rxjs';
 import { DownloadService } from 'src/app/services/download/download.service';
@@ -8,6 +8,10 @@ import { GraphqlService } from 'src/app/services/graphql/graphql.service';
 import { JwtService } from 'src/app/services/jwt/jwt.service';
 import { UploadService } from 'src/app/services/upload/upload.service';
 import { environment } from 'src/environments/environment';
+import { MatTable } from '@angular/material/table'
+import { MatSort } from '@angular/material/sort';
+import { MatTableDataSource } from '@angular/material/table';
+
 import {
   AnalyticsDTO,
   BenchmarkConfig,
@@ -39,7 +43,9 @@ export class EditBenchmarkConfigComponent implements OnInit, OnDestroy {
     private http: HttpClient,
     private jwtService: JwtService,
     private downloadService: DownloadService
-  ) {}
+  ) {
+    this.sort = new MatSort()
+  }
 
   private routeSub!: Subscription;
   private benchmarkConfigId!: string;
@@ -54,9 +60,13 @@ export class EditBenchmarkConfigComponent implements OnInit, OnDestroy {
 
   originalGameId!: string;
   analyticsList!: AnalyticsDTO[];
-  benchmarkRunsList!: BenchmarkRun[];
+  benchmarkRunsListDataSource!: MatTableDataSource<BenchmarkRun>;
   rawFile!: File;
   screenRecFile!: File;
+  benchmarksDisplayedColumns: string[] = ['activityName', "completionTimeAbsAvg", 'createdAt', 'download'];
+
+  // benchmarkRunsListDataSource?: MatTableDataSource<BenchmarkRun>;
+  @ViewChild(MatSort) sort: MatSort;
 
   ngOnInit(): void {
     this.routeSub = this.route.params.subscribe((params) => {
@@ -104,8 +114,14 @@ export class EditBenchmarkConfigComponent implements OnInit, OnDestroy {
           offset: this.offset
         }
       );
-    this.benchmarkRunsList = benchmarkRunResp.game_benchmarks;
-    console.log('benchmarks::runs::', this.benchmarkRunsList);
+    this.benchmarkRunsListDataSource = new MatTableDataSource(benchmarkRunResp.game_benchmarks);
+    this.benchmarkRunsListDataSource.data.forEach(data => {
+      data.completionTimeAbsAvg = data.avgAccuracy.completionTimeAbsAvg
+    })
+
+    this.benchmarkRunsListDataSource.sort = this.sort;
+
+    console.log('benchmarks::runs::', this.benchmarkRunsListDataSource);
     this.totalBenchmarkRunsCount = benchmarkRunResp.game_benchmarks_aggregate.aggregate.count;
   }
 
@@ -116,7 +132,6 @@ export class EditBenchmarkConfigComponent implements OnInit, OnDestroy {
     }
     console.log('this.totalBenchmarkRunsCount:', this.totalBenchmarkRunsCount);
     console.log('this.noOfPagesRequired:', this.noOfPagesRequired);
-    return this.noOfPagesRequired;
   }
 
   async initTables(benchmarkConfigId: string) {

@@ -26,7 +26,8 @@ export interface BenchmarkRun {
   avgAccuracy: {
     isSuccessAbsAvg: number;
     completionTimeAbsAvg: number;
-  }
+  },
+  completionTimeAbsAvg?: number // doing this cos' of MatSort not sorting JSON fields!
 }
 
 export interface VideoUploadUrlsResp {

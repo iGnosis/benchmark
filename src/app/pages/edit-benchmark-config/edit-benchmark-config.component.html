@@ -61,7 +61,6 @@
       </div>
     </div>
 
-
     <div class="py-4">
       <div class="px-2 py-3 text-dark" style="font-weight: 600; line-height: 24px;">
         Prompts
@@ -143,56 +142,36 @@
       </div>
 
       <div class="table-responsive border rounded-3 table-border">
-        <table class="table table-hover table-nowrap">
-          <thead class="table-light">
-            <tr>
-              <th scope="col">Activity</th>
-              <th scope="col">Avg. Completion Time Accuracy</th>
-              <th scope="col">Created At</th>
-              <th scope="col">Download Report</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let benchmarkRun of benchmarkRunsList">
-              <td>
-                {{ benchmarkRun.game.gameName.split('_').join(' ') | titlecase}}
-              </td>
-              <td>
-                {{ benchmarkRun.avgAccuracy.completionTimeAbsAvg || 'N/A'}}
-              </td>
-              <td>
-                {{getDateFromISOString(benchmarkRun.createdAt)}}
-              </td>
-              <td>
-                <button (click)="downloadBenchmarkReport(benchmarkRun.gameId)"
-                  class="btn btn-light text-primary text-sm download-btn">Download</button>
-              </td>
-              <td class="text-end">
-                <div class="dropdown">
-                  <a class="text-muted" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true"
-                    aria-expanded="false">
-                    <i class="bi bi-three-dots-vertical"></i>
-                  </a>
-                  <div class="dropdown-menu dropdown-menu-end">
-                    <a href="#!" class="dropdown-item">
-                      Action
-                    </a>
-                    <a href="#!" class="dropdown-item">
-                      Another action
-                    </a>
-                    <a href="#!" class="dropdown-item">
-                      Something else here
-                    </a>
-                  </div>
-                </div>
-              </td>
-            </tr>
-          </tbody>
+        <table mat-table [dataSource]="benchmarkRunsListDataSource" class="mat-elevation-z8" matSort>
+          <ng-container matColumnDef="activityName">
+            <th mat-header-cell *matHeaderCellDef> Activity </th>
+            <td mat-cell *matCellDef="let element"> {{ element.game.gameName.split('_').join(' ') | titlecase}} </td>
+          </ng-container>
+        
+          <ng-container matColumnDef="completionTimeAbsAvg">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Avg. Completion Time Accuracy </th>
+            <td mat-cell *matCellDef="let element"> {{element.completionTimeAbsAvg}} </td>
+          </ng-container>
+        
+          <ng-container matColumnDef="createdAt">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Created At </th>
+            <td mat-cell *matCellDef="let element"> {{getDateFromISOString(element.createdAt)}} </td>
+          </ng-container>
+        
+          <ng-container matColumnDef="download">
+            <th mat-header-cell *matHeaderCellDef> Download Report </th>
+            <td mat-cell *matCellDef="let element">
+              <button (click)="downloadBenchmarkReport(element.gameId)"
+                class="btn btn-light text-primary text-sm download-btn">Download</button>
+            </td>
+          </ng-container>
+          
+          <tr mat-header-row *matHeaderRowDef="benchmarksDisplayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: benchmarksDisplayedColumns;"></tr>
         </table>
+
       </div>
     </div>
-
     <div>
       <nav>
         <ul class="pagination">
@@ -201,14 +180,12 @@
               <i class="bi bi-chevron-left"></i>
             </a>
           </li>
-
           <div *ngFor="let pageNo of noOfPagesRequired">
             <li class="page-item"><a class="page-link page-{{pageNo}}" [class.active-page]="currentPage === pageNo"
                 (click)="changePage(pageNo)">{{
                 pageNo }}</a>
             </li>
           </div>
-
           <li class="page-item">
             <a class="page-link" (click)="incPage()">
               <i class="bi bi-chevron-right"></i>
