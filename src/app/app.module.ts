@@ -13,6 +13,7 @@ import { NewBenchmarkConfigComponent } from './pages/new-benchmark-config/new-be
 import { EditBenchmarkConfigComponent } from './pages/edit-benchmark-config/edit-benchmark-config.component';
 import { CommonModule } from '@angular/common';
 import { AllBenchmarksComponent } from './pages/all-benchmarks/all-benchmarks.component';
+import { ManualEntryComponent } from './pages/manual-entry/manual-entry.component';
 
 @NgModule({
   declarations: [
@@ -22,6 +23,7 @@ import { AllBenchmarksComponent } from './pages/all-benchmarks/all-benchmarks.co
     NewBenchmarkConfigComponent,
     EditBenchmarkConfigComponent,
     AllBenchmarksComponent,
+    ManualEntryComponent,
   ],
   imports: [
     BrowserModule,
