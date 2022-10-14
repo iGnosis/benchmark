@@ -85,11 +85,14 @@ export class ManualEntryComponent implements AfterViewInit, OnInit, OnDestroy {
     this.benchmarkConfig = benchmarkConfigResp.game_benchmark_config_by_pk;
     console.log('benchmark::config:', this.benchmarkConfig);
 
-    if (this.benchmarkConfig.screenRecordingUrl) {
+    if (
+      this.benchmarkConfig.screenRecordingUrl &&
+      this.benchmarkConfig.screenRecordingUploadStatus
+    ) {
       const source: HTMLSourceElement = document.createElement('source');
-      source.src = this.benchmarkConfig.rawVideoUrl;
+      source.src = this.benchmarkConfig.screenRecordingUrl;
       source.type = 'video/mp4';
-      this.video.nativeElement.appendChild(source);
+      this.video && this.video.nativeElement.appendChild(source);
     }
 
     const gameAnalyticsResp = await this.gqlService.gqlRequest(
@@ -211,10 +214,14 @@ export class ManualEntryComponent implements AfterViewInit, OnInit, OnDestroy {
   }
 
   onForward() {
-    this.video.nativeElement.currentTime += 0.033;
+    if (this.video) {
+      this.video.nativeElement.currentTime += 0.033;
+    }
   }
 
   onBackward() {
-    this.video.nativeElement.currentTime -= 0.033;
+    if (this.video) {
+      this.video.nativeElement.currentTime -= 0.033;
+    }
   }
 }
