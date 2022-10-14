@@ -17,6 +17,7 @@ export interface BenchmarkConfig {
   };
   screenRecordingUploadStatus: boolean;
   rawVideoUploadStatus: boolean;
+  activity?: string; // doing this cos' of MatSort not sorting JSON fields!
 }
 
 export interface BenchmarkRun {

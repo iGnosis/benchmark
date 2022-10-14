@@ -104,25 +104,6 @@
                 <span *ngIf="analytics.result.type === 'failure'"
                   class="badge rounded-pill text-xs bg-soft-danger text-danger">Failure</span>
               </td>
-              <td class="text-end">
-                <div class="dropdown">
-                  <a class="text-muted" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true"
-                    aria-expanded="false">
-                    <i class="bi bi-three-dots-vertical"></i>
-                  </a>
-                  <div class="dropdown-menu dropdown-menu-end">
-                    <a href="#!" class="dropdown-item">
-                      Action
-                    </a>
-                    <a href="#!" class="dropdown-item">
-                      Another action
-                    </a>
-                    <a href="#!" class="dropdown-item">
-                      Something else here
-                    </a>
-                  </div>
-                </div>
-              </td>
             </tr>
           </tbody>
         </table>
@@ -132,6 +113,20 @@
     <div class="py-4">
       <div class="px-2 py-3 text-dark" style="font-weight: 600; line-height: 24px;">
         All Benchmarks In This Configuration
+      </div>
+
+      <div class="date-filter">
+        <mat-form-field appearance="standard">
+          <mat-label>Enter a date range</mat-label>
+          <mat-date-range-input [rangePicker]="picker">
+            <input matStartDate placeholder="Start date" [value]="gameBenchmarkStartDate"
+              (dateChange)="changeGameBenchmarksDates('start', $event.value)">
+            <input matEndDate placeholder="End date" [value]="gameBenchmarkEndDate"
+              (dateChange)="changeGameBenchmarksDates('end', $event.value)">
+          </mat-date-range-input>
+          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-date-range-picker #picker></mat-date-range-picker>
+        </mat-form-field>
       </div>
 
       <div class="table-responsive border rounded-3 table-border">
@@ -163,30 +158,11 @@
           <tr mat-row *matRowDef="let row; columns: benchmarksDisplayedColumns;"></tr>
         </table>
 
+        <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons
+          aria-label="Select page of periodic elements">
+        </mat-paginator>
+
       </div>
     </div>
-    <div>
-      <nav>
-        <ul class="pagination">
-          <li class="page-item">
-            <a class="page-link" (click)="decPage()">
-              <i class="bi bi-chevron-left"></i>
-            </a>
-          </li>
-          <div *ngFor="let pageNo of noOfPagesRequired">
-            <li class="page-item"><a class="page-link page-{{pageNo}}" [class.active-page]="currentPage === pageNo"
-                (click)="changePage(pageNo)">{{
-                pageNo }}</a>
-            </li>
-          </div>
-          <li class="page-item">
-            <a class="page-link" (click)="incPage()">
-              <i class="bi bi-chevron-right"></i>
-            </a>
-          </li>
-        </ul>
-      </nav>
-    </div>
-
   </div>
 </div>

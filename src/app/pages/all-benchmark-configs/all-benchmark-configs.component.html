@@ -8,86 +8,82 @@
       </div>
       <div class="col-lg-6 d-flex justify-content-end align-items-start">
         <button (click)="redirectToCreateNewBenchmark()" class="btn btn-primary"><i
-            class="bi bi-play-fill px-2"></i>Create
-          New Benchmark Config</button>
+            class="bi bi-play-fill px-2"></i>Create New Benchmark Config</button>
       </div>
     </div>
     <div class="px-2 py-3 text-dark" style="font-weight: 600; line-height: 24px;">
       Created Benchmark Configurations
     </div>
-    <div class="table-responsive border rounded-3 table-border">
-      <table class="table table-hover table-nowrap">
-        <thead class="table-light">
-          <tr>
-            <th scope="col">
-              Raw Video
-            </th>
-            <th scope="col">
-              Screen Rec.
-            </th>
-            <th scope="col">Activity</th>
-            <th scope="col">Best Accuracy</th>
-            <th scope="col">Last Run</th>
-            <th scope="col">Created at</th>
-            <th scope="col">Setup Usage</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let config of benchmarkConfigsList" (click)="editBenchmarkConfig(config.id)">
-            <td class="text-lg" scope="col">
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="" id="flexCheckRow1"
-                  [checked]="config.rawVideoUploadStatus" readonly>
-                <label class="form-check-label" for="flexCheckRow1"></label>
-              </div>
-            </td>
+    <div class="date-filter">
+      <mat-form-field appearance="standard">
+        <mat-label>Enter a date range</mat-label>
+        <mat-date-range-input [rangePicker]="picker">
+          <input matStartDate placeholder="Start date" [value]="startDate"
+            (dateChange)="changeBenchmarkConfigDates('start', $event.value)">
+          <input matEndDate placeholder="End date" [value]="endDate"
+            (dateChange)="changeBenchmarkConfigDates('end', $event.value)">
+        </mat-date-range-input>
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-date-range-picker #picker></mat-date-range-picker>
+      </mat-form-field>
+    </div>
 
-            <td class="text-lg" scope="col">
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="" id="flexCheckRow1"
-                  [checked]="config.rawVideoUploadStatus" readonly>
-                <label class="form-check-label" for="flexCheckRow1"></label>
-              </div>
-            </td>
-            <td>
-              {{config.game.gameName.split('_').join(' ') | titlecase}}
-            </td>
-            <td>
-              {{'N/A'}}
-            </td>
-            <td>
-              {{'N/A'}}
-            </td>
-            <td>
-              {{getDateFromISOString(config.createdAt)}}
-            </td>
-            <td>
-              {{'N/A'}}
-            </td>
-            <td class="text-end">
-              <div class="dropdown">
-                <a class="text-muted" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true"
-                  aria-expanded="false">
-                  <i class="bi bi-three-dots-vertical"></i>
-                </a>
-                <div class="dropdown-menu dropdown-menu-end">
-                  <a href="#!" class="dropdown-item">
-                    Action
-                  </a>
-                  <a href="#!" class="dropdown-item">
-                    Another action
-                  </a>
-                  <a href="#!" class="dropdown-item">
-                    Something else here
-                  </a>
-                </div>
-              </div>
-            </td>
-          </tr>
-        </tbody>
+    <div class="table-responsive border rounded-3 table-border">
+      <table mat-table [dataSource]="benchmarkConfigsListDataSource" class="mat-elevation-z8" matSort>
+        <ng-container matColumnDef="rawVideoUrl">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Raw Video</th>
+          <td mat-cell *matCellDef="let config" (click)="editBenchmarkConfig(config.id)">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="" id="flexCheckRow1"
+                [checked]="config.rawVideoUploadStatus" readonly>
+              <label class="form-check-label" for="flexCheckRow1"></label>
+            </div>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="screenRecordingUrl">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Screen Rec. </th>
+          <td mat-cell *matCellDef="let config" (click)="editBenchmarkConfig(config.id)">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="" id="flexCheckRow1"
+                [checked]="config.screenRecordingUploadStatus" readonly>
+              <label class="form-check-label" for="flexCheckRow1"></label>
+            </div>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="activity">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Activity </th>
+          <td mat-cell *matCellDef="let config" (click)="editBenchmarkConfig(config.id)">
+            {{config.game.gameName.split('_').join(' ') | titlecase}} </td>
+        </ng-container>
+        <ng-container matColumnDef="bestAccuracy">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Best Accuracy </th>
+          <td mat-cell *matCellDef="let config" (click)="editBenchmarkConfig(config.id)">
+            N/A
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="lastRun">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Last Run </th>
+          <td mat-cell *matCellDef="let config" (click)="editBenchmarkConfig(config.id)">
+            N/A
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="createdAt">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Created At </th>
+          <td mat-cell *matCellDef="let config" (click)="editBenchmarkConfig(config.id)">
+            {{getDateFromISOString(config.createdAt)}}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="setupUsage">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Setup Usage </th>
+          <td mat-cell *matCellDef="let config" (click)="editBenchmarkConfig(config.id)">
+            N/A
+          </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="displayColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayColumns;"></tr>
       </table>
+      <mat-paginator [pageSizeOptions]="[10, 20, 30, 50]" showFirstLastButtons aria-label="Select page of periodic elements">
+      </mat-paginator>
     </div>
   </div>
-
 </div>

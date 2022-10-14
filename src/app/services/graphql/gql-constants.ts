@@ -20,22 +20,22 @@ export const GqlConstants = {
       }
     }
   }`,
-  GET_ALL_BENCHMARK_CONFIGS: `query GetBenchmarkConfigs {
-  game_benchmark_config {
-    id
-    originalGameId
-    createdAt
-    updatedAt
-    manualCalculations
-    rawVideoUrl
-    screenRecordingUrl
-    game {
-      gameName: game
+  GET_ALL_BENCHMARK_CONFIGS: `query GetBenchmarkConfigs($startDate: timestamptz!, $endDate: timestamptz!) {
+    game_benchmark_config(order_by: {createdAt: asc}, where: {createdAt: {_gte: $startDate, _lte: $endDate}}) {
+      id
+      originalGameId
+      createdAt
+      updatedAt
+      manualCalculations
+      rawVideoUrl
+      screenRecordingUrl
+      screenRecordingUploadStatus
+      rawVideoUploadStatus
+      game {
+        gameName: game
+      }
     }
-    screenRecordingUploadStatus
-    rawVideoUploadStatus
-  }
-}`,
+  }`,
   GET_VIDEO_UPLOAD_URLS: `mutation UploadBenchmarkVideos($benchmarkConfigId: ID!) {
   uploadBenchmarkVideos(benchmarkConfigId: $benchmarkConfigId) {
     data {
@@ -61,13 +61,8 @@ export const GqlConstants = {
   }
 }
 `,
-  GET_GAME_BENCHMARKS_FOR_CONFIG: `query GetGameBenchmarks($originalGameId: uuid!, $limit: Int = 10, $offset: Int = 10) {
-    game_benchmarks_aggregate(where: {originalGameId: {_eq: $originalGameId}}) {
-      aggregate {
-        count
-      }
-    }
-    game_benchmarks(where: {originalGameId: {_eq: $originalGameId}}, limit: $limit, offset: $offset, order_by: {createdAt: desc}) {
+  GET_GAME_BENCHMARKS_FOR_CONFIG: `query GetGameBenchmarks($originalGameId: uuid!, $startDate: timestamptz!, $endDate: timestamptz!) {
+    game_benchmarks(where: {originalGameId: {_eq: $originalGameId}, createdAt: {_gte: $startDate, _lte: $endDate}}, order_by: {createdAt: desc}) {
       analytics
       createdAt
       gameId
