@@ -37,7 +37,7 @@ export interface BenchmarkRun {
   completionTimeAbsAvg?: number; // doing this cos' of MatSort not sorting JSON fields!
 }
 
-interface PromptExtended extends AnalyticsDTO {
+export interface AnalyticsDTOWithPromptDetails extends AnalyticsDTO {
   initiationTimeStamp?: number;
   completionTimestamp?: number;
   success?: boolean;
