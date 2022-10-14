@@ -85,7 +85,6 @@ export class EditBenchmarkConfigComponent implements OnInit, OnDestroy {
         break;
       case 'end':
         if (date !== this.gameBenchmarkEndDate) {
-          date.setHours(24, 0, 0, 0);
           this.gameBenchmarkEndDate = date;
         }
         break;
@@ -96,12 +95,8 @@ export class EditBenchmarkConfigComponent implements OnInit, OnDestroy {
   }
 
   async getGameBenchmarks(startDate: Date, endDate: Date) {
+    const reloadEndDate = new Date(new Date(endDate).setHours(24, 0, 0, 0));
     const benchmarkRunResp: {
-      game_benchmarks_aggregate: {
-        aggregate: {
-          count: number
-        }
-      },
       game_benchmarks: BenchmarkRun[]
     } =
       await this.gqlService.gqlRequest(
@@ -109,7 +104,7 @@ export class EditBenchmarkConfigComponent implements OnInit, OnDestroy {
         {
           originalGameId: this.originalGameId,
           startDate,
-          endDate
+          endDate: reloadEndDate
         }
       );
 

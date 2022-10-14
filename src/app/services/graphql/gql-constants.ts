@@ -20,20 +20,20 @@ export const GqlConstants = {
       }
     }
   }`,
-  GET_ALL_BENCHMARK_CONFIGS: `query GetBenchmarkConfigs {
-  game_benchmark_config {
-    id
-    originalGameId
-    createdAt
-    updatedAt
-    manualCalculations
-    rawVideoUrl
-    screenRecordingUrl
-    game {
-      gameName: game
+  GET_ALL_BENCHMARK_CONFIGS: `query GetBenchmarkConfigs($startDate: timestamptz!, $endDate: timestamptz!) {
+    game_benchmark_config(order_by: {createdAt: asc}, where: {createdAt: {_gte: $startDate, _lte: $endDate}}) {
+      id
+      originalGameId
+      createdAt
+      updatedAt
+      manualCalculations
+      rawVideoUrl
+      screenRecordingUrl
+      game {
+        gameName: game
+      }
     }
-  }
-}`,
+  }`,
   GET_VIDEO_UPLOAD_URLS: `mutation UploadBenchmarkVideos($benchmarkConfigId: ID!) {
   uploadBenchmarkVideos(benchmarkConfigId: $benchmarkConfigId) {
     data {

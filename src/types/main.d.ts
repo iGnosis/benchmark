@@ -11,6 +11,7 @@ export interface BenchmarkConfig {
   game: {
     gameName: string;
   };
+  activity?: string; // doing this cos' of MatSort not sorting JSON fields!
 }
 
 export interface BenchmarkRun {
