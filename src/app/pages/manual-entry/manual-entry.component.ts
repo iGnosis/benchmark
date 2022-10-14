@@ -53,9 +53,10 @@ export class ManualEntryComponent implements AfterViewInit, OnInit, OnDestroy {
   isPlaying = false;
 
   ngAfterViewInit(): void {
-    this.video.nativeElement.addEventListener('timeupdate', () => {
-      this.onTimeUpdated();
-    });
+    this.video &&
+      this.video.nativeElement.addEventListener('timeupdate', () => {
+        this.onTimeUpdated();
+      });
   }
 
   @ViewChild('video') video!: ElementRef<HTMLVideoElement>;
