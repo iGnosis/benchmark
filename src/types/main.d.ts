@@ -35,6 +35,7 @@ export interface BenchmarkRun {
     completionTimeAbsAvg: number;
   };
   completionTimeAbsAvg?: number; // doing this cos' of MatSort not sorting JSON fields!
+  activity?: string; // doing this cos' of MatSort not sorting JSON fields!
 }
 
 interface PromptExtended extends AnalyticsDTO {
