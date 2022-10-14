@@ -75,15 +75,19 @@ export const GqlConstants = {
       avgAccuracy
     }
   }`,
-  GET_ALL_BENCHMARKS: `query GetAllGameBenchmarks {
-  game_benchmarks(order_by: {createdAt: desc}) {
-    createdAt
-    gameId
-    id
-    originalGameId
-    systemSpec
-  }
-}`,
+  GET_ALL_BENCHMARKS: `query GetAllGameBenchmarks($startDate: timestamptz!, $endDate: timestamptz!) {
+    game_benchmarks(order_by: {createdAt: desc}, where: {createdAt: {_gte: $startDate, _lte: $endDate}}) {
+      createdAt
+      gameId
+      game {
+        gameName: game
+      }
+      avgAccuracy
+      id
+      originalGameId
+      systemSpec
+    }
+  }`,
   GET_GAME_ANALYTICS: `query GetGameAnalytics($gameId: uuid!) {
   game_by_pk(id: $gameId) {
     analytics
