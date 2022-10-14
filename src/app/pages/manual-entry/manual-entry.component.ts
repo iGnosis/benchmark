@@ -13,9 +13,8 @@ import { Subscription } from 'rxjs';
 import { GqlConstants } from 'src/app/services/graphql/gql-constants';
 import { GraphqlService } from 'src/app/services/graphql/graphql.service';
 import {
-  AnalyticsDTO,
+  AnalyticsDTOWithPromptDetails,
   BenchmarkConfig,
-  PromptExtended,
 } from '../../../types/main';
 import { Prompt } from '../edit-benchmark-config/edit-benchmark-config.component';
 
@@ -54,18 +53,19 @@ export class ManualEntryComponent implements AfterViewInit, OnInit, OnDestroy {
   isPlaying = false;
 
   ngAfterViewInit(): void {
-    this.video.nativeElement.addEventListener('timeupdate', () => {
-      this.onTimeUpdated();
-    });
+    this.video &&
+      this.video.nativeElement.addEventListener('timeupdate', () => {
+        this.onTimeUpdated();
+      });
   }
 
   @ViewChild('video') video!: ElementRef<HTMLVideoElement>;
   currentTime: number = 0;
-  currentPrompt: PromptExtended | undefined;
+  currentPrompt: AnalyticsDTOWithPromptDetails | undefined;
   currentMetric: any;
   promptsList: any[] = [];
 
-  analyticsList!: PromptExtended[];
+  analyticsList!: AnalyticsDTOWithPromptDetails[];
   benchmarkConfig!: BenchmarkConfig;
 
   manualCalculations: {
@@ -101,7 +101,7 @@ export class ManualEntryComponent implements AfterViewInit, OnInit, OnDestroy {
     this.analyticsList = gameAnalyticsResp.game_by_pk.analytics;
     console.log('analytics::', gameAnalyticsResp.game_by_pk.analytics);
 
-    this.manualCalculations = this.benchmarkConfig.manualCalculations;
+    this.manualCalculations = this.benchmarkConfig.manualCalculations || {};
 
     Object.keys(this.manualCalculations).forEach((key) => {
       const index = this.analyticsList.findIndex(
@@ -111,7 +111,7 @@ export class ManualEntryComponent implements AfterViewInit, OnInit, OnDestroy {
     });
   }
 
-  async saveManualEntry(currentPrompt: PromptExtended) {
+  async saveManualEntry(currentPrompt: AnalyticsDTOWithPromptDetails) {
     console.log(currentPrompt);
 
     if (
