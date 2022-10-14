@@ -1,7 +1,11 @@
 export interface BenchmarkConfig {
   id: string;
   manualCalculations: {
-    [key: string]: { isSuccess: boolean; completionTimeInMs: number };
+    [key: string]: {
+      isSuccess: boolean;
+      completionTimeInMs: number;
+      initiationTimeInMs?: number;
+    };
   };
   originalGameId: string;
   rawVideoUrl: string;
@@ -11,6 +15,8 @@ export interface BenchmarkConfig {
   game: {
     gameName: string;
   };
+  screenRecordingUploadStatus: boolean;
+  rawVideoUploadStatus: boolean;
 }
 
 export interface BenchmarkRun {
@@ -26,8 +32,15 @@ export interface BenchmarkRun {
   avgAccuracy: {
     isSuccessAbsAvg: number;
     completionTimeAbsAvg: number;
-  },
-  completionTimeAbsAvg?: number // doing this cos' of MatSort not sorting JSON fields!
+  };
+  completionTimeAbsAvg?: number; // doing this cos' of MatSort not sorting JSON fields!
+}
+
+interface PromptExtended extends AnalyticsDTO {
+  initiationTimeStamp?: number;
+  completionTimestamp?: number;
+  success?: boolean;
+  manualEntry?: boolean;
 }
 
 export interface VideoUploadUrlsResp {
@@ -39,13 +52,13 @@ export interface VideoUploadUrlsResp {
   };
 }
 
-export type AnalyticsDTO = {
+export interface AnalyticsDTO {
   prompt: AnalyticsPromptDTO;
   reaction: AnalyticsReactionDTO;
   result: AnalyticsResultDTO;
-};
+}
 
-export type AnalyticsPromptDTO = {
+export interface AnalyticsPromptDTO {
   id: string;
   type: string;
   timestamp: number;
@@ -53,34 +66,34 @@ export type AnalyticsPromptDTO = {
     | Sit2StandAnalyticsDTO
     | BeatboxerAnalyticsDTO
     | SoundExplorerAnalyticsDTO;
-};
+}
 
-export type AnalyticsReactionDTO = {
+export interface AnalyticsReactionDTO {
   type: string;
   timestamp: number; // placeholder value.
   startTime: number; // placeholder value.
   completionTimeInMs: number | null;
-};
+}
 
-export type AnalyticsResultDTO = {
+export interface AnalyticsResultDTO {
   type: 'success' | 'failure';
   timestamp: number;
   score: number;
-};
+}
 
 // individual game data
-export type Sit2StandAnalyticsDTO = {
+export interface Sit2StandAnalyticsDTO {
   number: number | string;
-};
+}
 
-export type BeatboxerAnalyticsDTO = {
+export interface BeatboxerAnalyticsDTO {
   leftBag: BagType | 'obstacle' | undefined;
   rightBag: BagType | 'obstacle' | undefined;
-};
+}
 
-export type SoundExplorerAnalyticsDTO = {
+export interface SoundExplorerAnalyticsDTO {
   shapes: Shape[];
-};
+}
 
 export type BagType = 'heavy-blue' | 'heavy-red' | 'speed-blue' | 'speed-red';
 export type Shape = 'circle' | 'triangle' | 'rectangle' | 'wrong' | 'hexagon';

@@ -12,7 +12,11 @@ import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { GqlConstants } from 'src/app/services/graphql/gql-constants';
 import { GraphqlService } from 'src/app/services/graphql/graphql.service';
-import { AnalyticsDTO, BenchmarkConfig } from 'src/types/main';
+import {
+  AnalyticsDTO,
+  BenchmarkConfig,
+  PromptExtended,
+} from '../../../types/main';
 import { Prompt } from '../edit-benchmark-config/edit-benchmark-config.component';
 
 export enum KEY_CODE {
@@ -57,12 +61,21 @@ export class ManualEntryComponent implements AfterViewInit, OnInit, OnDestroy {
 
   @ViewChild('video') video!: ElementRef<HTMLVideoElement>;
   currentTime: number = 0;
-  currentPrompt: any | undefined;
+  currentPrompt: PromptExtended | undefined;
   currentMetric: any;
   promptsList: any[] = [];
 
-  analyticsList!: AnalyticsDTO[];
+  analyticsList!: PromptExtended[];
   benchmarkConfig!: BenchmarkConfig;
+
+  manualCalculations: {
+    [promptId: string]: {
+      isSuccess: boolean;
+      completionTimeInMs: number;
+      initiationTimeInMs?: number;
+    };
+  } = {};
+
   async initTables(benchmarkConfigId: string) {
     const benchmarkConfigResp = await this.gqlService.gqlRequest(
       GqlConstants.GET_BENCHMARK_CONFIG,
@@ -86,7 +99,64 @@ export class ManualEntryComponent implements AfterViewInit, OnInit, OnDestroy {
       }
     );
     this.analyticsList = gameAnalyticsResp.game_by_pk.analytics;
-    console.log(gameAnalyticsResp.game_by_pk.analytics);
+    console.log('analytics::', gameAnalyticsResp.game_by_pk.analytics);
+
+    this.manualCalculations = this.benchmarkConfig.manualCalculations;
+
+    Object.keys(this.manualCalculations).forEach((key) => {
+      const index = this.analyticsList.findIndex(
+        (analytics) => analytics.prompt.id === key
+      );
+      this.analyticsList[index].manualEntry = true;
+    });
+  }
+
+  async saveManualEntry(currentPrompt: PromptExtended) {
+    console.log(currentPrompt);
+
+    if (
+      !currentPrompt.initiationTimeStamp ||
+      !currentPrompt.completionTimestamp
+    ) {
+      return;
+    }
+
+    const { id } = currentPrompt.prompt;
+
+    // TODO: calculate promptStartTime to calculate the initiationTime
+    // const initiationTimeInMs =
+    //   currentPrompt.initiationTimeStamp - promptStartTime;
+
+    const completionTimeStampInMS = currentPrompt.completionTimestamp * 1000;
+    const initiationTimeStampInMS = currentPrompt.initiationTimeStamp * 1000;
+
+    const completionTimeInMs =
+      completionTimeStampInMS - initiationTimeStampInMS;
+
+    this.manualCalculations = this.manualCalculations || {};
+    this.manualCalculations[id] = {
+      isSuccess: currentPrompt.success as boolean,
+      completionTimeInMs,
+    };
+
+    const resp = await this.gqlService.gqlRequest(
+      GqlConstants.SET_MANUAL_CALCULATIONS,
+      {
+        manualCalculations: this.manualCalculations,
+        benchmarkConfigId: this.benchmarkConfigId,
+      }
+    );
+
+    this.manualCalculations =
+      resp.update_game_benchmark_config_by_pk.manualCalculations;
+    console.log('manualCalculations', this.manualCalculations);
+
+    const index = this.analyticsList.findIndex(
+      (analytics) => analytics.prompt.id === id
+    );
+    this.analyticsList[index].manualEntry = true;
+
+    this.currentPrompt = undefined;
   }
 
   @HostListener('window:keyup', ['$event'])
@@ -106,13 +176,13 @@ export class ManualEntryComponent implements AfterViewInit, OnInit, OnDestroy {
       case 'Keyi':
       case 'KeyI':
         if (this.currentPrompt) {
-          this.currentPrompt.manual.initiationTimestamp = this.currentTime;
+          this.currentPrompt.initiationTimeStamp = this.currentTime;
         }
         break;
       case 'Keyc':
       case 'KeyC':
         if (this.currentPrompt) {
-          this.currentPrompt.manual.completionTimestamp = this.currentTime;
+          this.currentPrompt.completionTimestamp = this.currentTime;
         }
         break;
     }

@@ -32,6 +32,8 @@ export const GqlConstants = {
     game {
       gameName: game
     }
+    screenRecordingUploadStatus
+    rawVideoUploadStatus
   }
 }`,
   GET_VIDEO_UPLOAD_URLS: `mutation UploadBenchmarkVideos($benchmarkConfigId: ID!) {
@@ -54,6 +56,8 @@ export const GqlConstants = {
     game {
       game_name: game
     }
+    screenRecordingUploadStatus
+    rawVideoUploadStatus
   }
 }
 `,
@@ -123,6 +127,21 @@ export const GqlConstants = {
     data {
       status
     }
+  }
+}`,
+  SET_MANUAL_CALCULATIONS: `mutation UpdateManualCalculations($manualCalculations: jsonb!, $benchmarkConfigId: uuid!, ) {
+  update_game_benchmark_config_by_pk(pk_columns: {id: $benchmarkConfigId}, _set: {manualCalculations: $manualCalculations}) {
+    manualCalculations
+  }
+}`,
+  SET_RAWVIDEO_UPLOAD_STATUS: `mutation SetRawVideoUploadStatus($benchmarkConfigId: uuid!) {
+  update_game_benchmark_config(where: {id: {_eq: $benchmarkConfigId}}, _set: {rawVideoUploadStatus: true}) {
+    affected_rows
+  }
+}`,
+  SET_SCREENREC_UPLOAD_STATUS: `mutation SetScreenRecordingUploadStatus($benchmarkConfigId: uuid!) {
+  update_game_benchmark_config(where: {id: {_eq: $benchmarkConfigId}}, _set: {screenRecordingUploadStatus: true}) {
+    affected_rows
   }
 }`,
 };

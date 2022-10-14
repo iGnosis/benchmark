@@ -8,7 +8,7 @@ import { GraphqlService } from 'src/app/services/graphql/graphql.service';
 import { JwtService } from 'src/app/services/jwt/jwt.service';
 import { UploadService } from 'src/app/services/upload/upload.service';
 import { environment } from 'src/environments/environment';
-import { MatTable } from '@angular/material/table'
+import { MatTable } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 
@@ -44,12 +44,12 @@ export class EditBenchmarkConfigComponent implements OnInit, OnDestroy {
     private jwtService: JwtService,
     private downloadService: DownloadService
   ) {
-    this.sort = new MatSort()
+    this.sort = new MatSort();
   }
 
   private routeSub!: Subscription;
   private benchmarkConfigId!: string;
-  private benchmarkConfig!: BenchmarkConfig;
+  benchmarkConfig!: BenchmarkConfig;
 
   // Pagination
   offset = 0;
@@ -61,9 +61,12 @@ export class EditBenchmarkConfigComponent implements OnInit, OnDestroy {
   originalGameId!: string;
   analyticsList!: AnalyticsDTO[];
   benchmarkRunsListDataSource!: MatTableDataSource<BenchmarkRun>;
-  rawFile!: File;
-  screenRecFile!: File;
-  benchmarksDisplayedColumns: string[] = ['activityName', "completionTimeAbsAvg", 'createdAt', 'download'];
+  benchmarksDisplayedColumns: string[] = [
+    'activityName',
+    'completionTimeAbsAvg',
+    'createdAt',
+    'download',
+  ];
 
   // benchmarkRunsListDataSource?: MatTableDataSource<BenchmarkRun>;
   @ViewChild(MatSort) sort: MatSort;
@@ -92,7 +95,7 @@ export class EditBenchmarkConfigComponent implements OnInit, OnDestroy {
     console.log('changePage', pageNo);
     this.currentPage = pageNo;
 
-    this.offset = (pageNo * this.pageLimit) - this.pageLimit;
+    this.offset = pageNo * this.pageLimit - this.pageLimit;
     console.log('this.offset:', this.offset);
     this.getGameBenchmarks();
   }
@@ -101,28 +104,30 @@ export class EditBenchmarkConfigComponent implements OnInit, OnDestroy {
     const benchmarkRunResp: {
       game_benchmarks_aggregate: {
         aggregate: {
-          count: number
-        }
-      },
-      game_benchmarks: BenchmarkRun[]
-    } =
-      await this.gqlService.gqlRequest(
-        GqlConstants.GET_GAME_BENCHMARKS_FOR_CONFIG,
-        {
-          originalGameId: this.originalGameId,
-          limit: this.pageLimit,
-          offset: this.offset
-        }
-      );
-    this.benchmarkRunsListDataSource = new MatTableDataSource(benchmarkRunResp.game_benchmarks);
-    this.benchmarkRunsListDataSource.data.forEach(data => {
-      data.completionTimeAbsAvg = data.avgAccuracy.completionTimeAbsAvg
-    })
+          count: number;
+        };
+      };
+      game_benchmarks: BenchmarkRun[];
+    } = await this.gqlService.gqlRequest(
+      GqlConstants.GET_GAME_BENCHMARKS_FOR_CONFIG,
+      {
+        originalGameId: this.originalGameId,
+        limit: this.pageLimit,
+        offset: this.offset,
+      }
+    );
+    this.benchmarkRunsListDataSource = new MatTableDataSource(
+      benchmarkRunResp.game_benchmarks
+    );
+    this.benchmarkRunsListDataSource.data.forEach((data) => {
+      data.completionTimeAbsAvg = data.avgAccuracy.completionTimeAbsAvg;
+    });
 
     this.benchmarkRunsListDataSource.sort = this.sort;
 
     console.log('benchmarks::runs::', this.benchmarkRunsListDataSource);
-    this.totalBenchmarkRunsCount = benchmarkRunResp.game_benchmarks_aggregate.aggregate.count;
+    this.totalBenchmarkRunsCount =
+      benchmarkRunResp.game_benchmarks_aggregate.aggregate.count;
   }
 
   noOfPagesRequiredCount() {
@@ -159,20 +164,27 @@ export class EditBenchmarkConfigComponent implements OnInit, OnDestroy {
   }
 
   async onRawVideoUpload(event: any) {
-    this.rawFile = event.target.files[0];
+    const rawFile: File = event.target.files[0];
     const { webcamUploadUrl } = await this.getUploadUrl();
     console.log('uploading:url:webcamUploadUrl::', webcamUploadUrl);
-    this.uploadService.uploadVideo(webcamUploadUrl, this.rawFile).subscribe({
-      next: (data) => {
+    this.uploadService.uploadVideo(webcamUploadUrl, rawFile).subscribe({
+      next: async (data) => {
         if (data.status === 200) {
-          console.log('upload:success::', data.status);
-          this.gqlService.gqlRequest(
-            GqlConstants.TRANSCODE_VIDEO,
+          // setting the upload status in the db to true.
+          await this.gqlService.gqlRequest(
+            GqlConstants.SET_RAWVIDEO_UPLOAD_STATUS,
             {
               benchmarkConfigId: this.benchmarkConfigId,
-              videoType: 'webcam',
             }
           );
+
+          this.benchmarkConfig.rawVideoUploadStatus = true;
+
+          console.log('upload:success::', data.status);
+          this.gqlService.gqlRequest(GqlConstants.TRANSCODE_VIDEO, {
+            benchmarkConfigId: this.benchmarkConfigId,
+            videoType: 'webcam',
+          });
         }
       },
       error: (err) => {
@@ -182,25 +194,32 @@ export class EditBenchmarkConfigComponent implements OnInit, OnDestroy {
   }
 
   async onScreenRecUpload(event: any) {
-    this.screenRecFile = event.target.files[0];
+    const screenRecFile: File = event.target.files[0];
     const { screenCaptureUploadUrl } = await this.getUploadUrl();
     console.log(
       'uploading:url:screenCaptureUploadUrl::',
       screenCaptureUploadUrl
     );
     this.uploadService
-      .uploadVideo(screenCaptureUploadUrl, this.rawFile)
+      .uploadVideo(screenCaptureUploadUrl, screenRecFile)
       .subscribe({
-        next: (data) => {
+        next: async (data) => {
           if (data.status === 200) {
-            console.log('upload:success::', data.status);
-            this.gqlService.gqlRequest(
-              GqlConstants.TRANSCODE_VIDEO,
+            // setting the upload status in the db to true.
+            await this.gqlService.gqlRequest(
+              GqlConstants.SET_SCREENREC_UPLOAD_STATUS,
               {
                 benchmarkConfigId: this.benchmarkConfigId,
-                videoType: 'screenCapture',
               }
             );
+
+            this.benchmarkConfig.screenRecordingUploadStatus = true;
+
+            console.log('upload:success::', data.status);
+            this.gqlService.gqlRequest(GqlConstants.TRANSCODE_VIDEO, {
+              benchmarkConfigId: this.benchmarkConfigId,
+              videoType: 'screenCapture',
+            });
           }
         },
         error: (err) => {
@@ -211,12 +230,9 @@ export class EditBenchmarkConfigComponent implements OnInit, OnDestroy {
 
   async getUploadUrl() {
     const videoUploadUrlsResp: VideoUploadUrlsResp =
-      await this.gqlService.gqlRequest(
-        GqlConstants.GET_VIDEO_UPLOAD_URLS,
-        {
-          benchmarkConfigId: this.benchmarkConfigId,
-        }
-      );
+      await this.gqlService.gqlRequest(GqlConstants.GET_VIDEO_UPLOAD_URLS, {
+        benchmarkConfigId: this.benchmarkConfigId,
+      });
     return videoUploadUrlsResp.uploadBenchmarkVideos.data;
   }
 
@@ -234,7 +250,6 @@ export class EditBenchmarkConfigComponent implements OnInit, OnDestroy {
   }
 
   downloadBenchmarkReport(benchmarkRunId: string) {
-    // TODO: generate/download a benchmark report
     console.log('download::benchmarkRun::id:', benchmarkRunId);
     console.log('benchmark:config::id:', this.benchmarkConfigId);
 

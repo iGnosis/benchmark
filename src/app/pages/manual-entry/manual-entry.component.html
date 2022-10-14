@@ -15,7 +15,6 @@
           </div>
           <div class="col text-center">
             <div class="btn-group" role="group" aria-label="Basic example">
-
               <b role="button" (click)="onBackward()" class="text-xl me-2" type="button">⏪</b>
               <b role="button" *ngIf="!isPlaying" (click)="onPlay()" class="text-xl me-2" type="button">▶️</b>
               <b role="button" *ngIf="isPlaying" (click)="onPause()" class="text-xl me-2" type="button">⏸</b>
@@ -26,6 +25,11 @@
         </div>
       </div>
     </div>
+
+    <!-- <div *ngIf="noScreenRecVideo" class="p-4 col-8">
+      <div class="h2 text-center">No Screen Recording File Found. Please Upload One.</div>
+    </div> -->
+
     <div class="col-4">
       <div *ngIf="!currentPrompt">
         <div class="pt-2 pb-2">
@@ -35,7 +39,7 @@
                 <tr>
                   <th scope="col">No</th>
                   <th scope="col">Prompt</th>
-                  <th scope="col">State</th>
+                  <th scope="col">Manual Entry</th>
                 </tr>
               </thead>
               <tbody>
@@ -46,10 +50,10 @@
                     {{analytics.prompt.type | titlecase}}
                   </td>
                   <td>
-                    <span *ngIf="analytics.result.type === 'success'"
-                      class="badge rounded-pill text-xs bg-soft-success text-success">Success</span>
-                    <span *ngIf="analytics.result.type === 'failure'"
-                      class="badge rounded-pill text-xs bg-soft-danger text-danger">Failure</span>
+                    <span *ngIf="analytics.manualEntry"
+                      class="badge rounded-pill text-xs bg-soft-success text-success">Complete</span>
+                    <span *ngIf="!analytics.manualEntry"
+                      class="badge rounded-pill text-xs bg-soft-danger text-danger">Incomplete</span>
                   </td>
                 </tr>
               </tbody>
@@ -67,26 +71,30 @@
             <form [noValidate]="true">
               <div class="form-group py-3">
                 <label for="initiationTime">Initiation Time</label>
-                <input type="number" class="form-control" id="initiationTime">
+                <input [(ngModel)]="currentPrompt.initiationTimeStamp" type="number" class="form-control"
+                  name="initiationTimeStamp" id="initiationTime">
                 <small id="initiationTime" class="form-text text-muted">When the reaction started</small>
               </div>
               <div class="form-group py-3">
                 <label for="completionTime">Completion Time</label>
-                <input type="number" class="form-control" id="completionTime">
+                <input [(ngModel)]="currentPrompt.completionTimestamp" name="completionTimeStamp" type="number"
+                  class="form-control" id="completionTime">
               </div>
               <div class="p-4">
                 <div class="form-check form-check-inline px-3">
-                  <input class="form-check-input" type="radio" name="prompt_state" id="prompt_state">
+                  <input class="form-check-input" [(ngModel)]="currentPrompt.success" [value]="true" type="radio"
+                    name="prompt_state" id="prompt_state">
                   <label class="form-check-label" for="prompt_state">Success</label>
                 </div>
                 <div class="form-check form-check-inline px-3">
-                  <input class="form-check-input" type="radio" name="prompt_state" id="prompt_state2">
+                  <input class="form-check-input" [(ngModel)]="currentPrompt.success" [value]="false" type="radio"
+                    name="prompt_state" id="prompt_state2">
                   <label class="form-check-label" for="prompt_state2">Miss</label>
                 </div>
               </div>
               <div class="p-4 row">
                 <div class="col-md-6 d-flex justify-content-start">
-                  <button type="submit" class="btn btn-primary">Save</button>
+                  <button (click)="saveManualEntry(currentPrompt)" class="btn btn-primary">Save</button>
                 </div>
                 <div class="col-md-6 d-flex justify-content-end">
                   <button (click)="currentPrompt= undefined" type="submit" class="btn btn-primary">Back</button>
