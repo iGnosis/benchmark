@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { invoke } from '@tauri-apps/api';
 import { DownloadService } from 'src/app/services/download/download.service';
 import { GqlConstants } from 'src/app/services/graphql/gql-constants';
 import { GraphqlService } from 'src/app/services/graphql/graphql.service';
@@ -19,10 +20,7 @@ export class AllBenchmarksComponent implements OnInit {
 
   async ngOnInit() {
     const benchmarkRunsResp: { game_benchmarks: BenchmarkRun[] } =
-      await this.gqlService.gqlRequest(
-        GqlConstants.GET_ALL_BENCHMARKS,
-        {}
-      );
+      await this.gqlService.gqlRequest(GqlConstants.GET_ALL_BENCHMARKS, {});
     this.previousBenchmarkRuns = benchmarkRunsResp.game_benchmarks;
   }
 
