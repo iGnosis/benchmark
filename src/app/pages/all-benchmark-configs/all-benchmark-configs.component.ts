@@ -6,6 +6,7 @@ import { BenchmarkConfig } from 'src/types/main';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
+import { invoke } from '@tauri-apps/api';
 
 @Component({
   selector: 'app-all-benchmark-configs',
@@ -26,12 +27,16 @@ export class AllBenchmarkConfigsComponent implements OnInit {
     'bestAccuracy',
     'lastRun',
     'createdAt',
-    'setupUsage'
+    'setupUsage',
   ];
 
   async ngOnInit() {
     const now = new Date();
-    const sevenDaysInPast = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
+    const sevenDaysInPast = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate() - 7
+    );
     sevenDaysInPast.setHours(0, 0, 0, 0);
     this.getBenchmarkConfigs(sevenDaysInPast, now);
   }
@@ -66,7 +71,7 @@ export class AllBenchmarkConfigsComponent implements OnInit {
       GqlConstants.GET_ALL_BENCHMARK_CONFIGS,
       {
         startDate,
-        endDate: reloadEndDate
+        endDate: reloadEndDate,
       },
       true
     );
@@ -74,10 +79,12 @@ export class AllBenchmarkConfigsComponent implements OnInit {
       'allBenchmarkConfigs::',
       benchmarkConfigs.game_benchmark_config
     );
-    this.benchmarkConfigsListDataSource = new MatTableDataSource(benchmarkConfigs.game_benchmark_config);
-    this.benchmarkConfigsListDataSource.data.forEach(data => {
+    this.benchmarkConfigsListDataSource = new MatTableDataSource(
+      benchmarkConfigs.game_benchmark_config
+    );
+    this.benchmarkConfigsListDataSource.data.forEach((data) => {
       data.activity = data.game.gameName;
-    })
+    });
     this.benchmarkConfigsListDataSource.paginator = this.paginator;
     this.benchmarkConfigsListDataSource.sort = this.sort;
   }
