@@ -143,4 +143,9 @@ export const GqlConstants = {
     affected_rows
   }
 }`,
+  UPDATE_GAME_BENCHMARK_SYSTEM_CONF: `mutation UpdateBenchmarkSystemConf($gameBenchmarkId: uuid!, $systemSpec: jsonb!) {
+    update_game_benchmarks_by_pk(pk_columns: {id: $gameBenchmarkId}, _set: {systemSpec: $systemSpec}) {
+      id
+    }
+  }`
 };

@@ -21,6 +21,8 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { SessionComponent } from './pages/session/session.component';
+import { SafePipe } from './pipes/safe/safe.pipe';
 
 @NgModule({
   declarations: [
@@ -31,6 +33,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
     EditBenchmarkConfigComponent,
     AllBenchmarksComponent,
     ManualEntryComponent,
+    SessionComponent,
+    SafePipe
   ],
   imports: [
     BrowserModule,

@@ -8,6 +8,8 @@ import { EditBenchmarkConfigComponent } from './pages/edit-benchmark-config/edit
 import { LoginComponent } from './pages/login/login.component';
 import { ManualEntryComponent } from './pages/manual-entry/manual-entry.component';
 import { NewBenchmarkConfigComponent } from './pages/new-benchmark-config/new-benchmark-config.component';
+import { SessionComponent } from './pages/session/session.component';
+
 
 const routes: Routes = [
   { path: '', redirectTo: 'app/configs/all', pathMatch: 'full' },
@@ -16,6 +18,7 @@ const routes: Routes = [
     canActivateChild: [PublicGuard],
     children: [{ path: 'login', component: LoginComponent }],
   },
+  { path: "app/session", component: SessionComponent, canActivate: [PrivateGuard] },
   {
     path: 'app',
     canActivateChild: [PrivateGuard],

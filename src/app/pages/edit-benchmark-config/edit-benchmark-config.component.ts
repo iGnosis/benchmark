@@ -228,7 +228,11 @@ export class EditBenchmarkConfigComponent implements OnInit, OnDestroy {
 
   runBenchmark() {
     console.log('run:benchmark::', this.benchmarkConfigId);
-    this.router.navigate(['app/benchmarks/all']);
+    this.router.navigate(["/app/session"], {
+      queryParams: {
+        benchmarkId: this.benchmarkConfigId
+      }
+    });
   }
 
   runManualBenchmark() {
