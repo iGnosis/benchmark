@@ -11,6 +11,7 @@ import { environment } from 'src/environments/environment';
 import { MatTable } from '@angular/material/table'
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
+import { MatPaginator } from '@angular/material/paginator';
 
 import {
   AnalyticsDTO,
@@ -51,13 +52,6 @@ export class EditBenchmarkConfigComponent implements OnInit, OnDestroy {
   private benchmarkConfigId!: string;
   private benchmarkConfig!: BenchmarkConfig;
 
-  // Pagination
-  offset = 0;
-  pageLimit = 10;
-  currentPage = 1;
-  noOfPagesRequired: number[] = [];
-  totalBenchmarkRunsCount = 0;
-
   originalGameId!: string;
   analyticsList!: AnalyticsDTO[];
   benchmarkRunsListDataSource!: MatTableDataSource<BenchmarkRun>;
@@ -65,8 +59,8 @@ export class EditBenchmarkConfigComponent implements OnInit, OnDestroy {
   screenRecFile!: File;
   benchmarksDisplayedColumns: string[] = ['activityName', "completionTimeAbsAvg", 'createdAt', 'download'];
 
-  // benchmarkRunsListDataSource?: MatTableDataSource<BenchmarkRun>;
   @ViewChild(MatSort) sort: MatSort;
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   ngOnInit(): void {
     this.routeSub = this.route.params.subscribe((params) => {
@@ -76,28 +70,32 @@ export class EditBenchmarkConfigComponent implements OnInit, OnDestroy {
     this.initTables(this.benchmarkConfigId);
   }
 
-  decPage() {
-    if (this.currentPage > 1) {
-      this.changePage(this.currentPage - 1);
+  gameBenchmarkStartDate?: Date;
+  gameBenchmarkEndDate?: Date;
+  changeGameBenchmarksDates(type: 'start' | 'end', date: Date) {
+    console.log(`${type}: ${date}`);
+    if (!date) return;
+    switch (type) {
+      case 'start':
+        if (date !== this.gameBenchmarkStartDate) {
+          date.setHours(0, 0, 0, 0);
+          this.gameBenchmarkStartDate = date;
+          this.gameBenchmarkEndDate = undefined;
+        }
+        break;
+      case 'end':
+        if (date !== this.gameBenchmarkEndDate) {
+          date.setHours(24, 0, 0, 0);
+          this.gameBenchmarkEndDate = date;
+        }
+        break;
+    }
+    if (this.gameBenchmarkStartDate && this.gameBenchmarkEndDate) {
+      this.getGameBenchmarks(this.gameBenchmarkStartDate, this.gameBenchmarkEndDate);
     }
   }
 
-  incPage() {
-    if (this.currentPage < this.noOfPagesRequired.length) {
-      this.changePage(this.currentPage + 1);
-    }
-  }
-
-  changePage(pageNo: number) {
-    console.log('changePage', pageNo);
-    this.currentPage = pageNo;
-
-    this.offset = (pageNo * this.pageLimit) - this.pageLimit;
-    console.log('this.offset:', this.offset);
-    this.getGameBenchmarks();
-  }
-
-  async getGameBenchmarks() {
+  async getGameBenchmarks(startDate: Date, endDate: Date) {
     const benchmarkRunResp: {
       game_benchmarks_aggregate: {
         aggregate: {
@@ -110,28 +108,20 @@ export class EditBenchmarkConfigComponent implements OnInit, OnDestroy {
         GqlConstants.GET_GAME_BENCHMARKS_FOR_CONFIG,
         {
           originalGameId: this.originalGameId,
-          limit: this.pageLimit,
-          offset: this.offset
+          startDate,
+          endDate
         }
       );
+
     this.benchmarkRunsListDataSource = new MatTableDataSource(benchmarkRunResp.game_benchmarks);
     this.benchmarkRunsListDataSource.data.forEach(data => {
       data.completionTimeAbsAvg = data.avgAccuracy.completionTimeAbsAvg
     })
 
     this.benchmarkRunsListDataSource.sort = this.sort;
+    this.benchmarkRunsListDataSource.paginator = this.paginator;
 
     console.log('benchmarks::runs::', this.benchmarkRunsListDataSource);
-    this.totalBenchmarkRunsCount = benchmarkRunResp.game_benchmarks_aggregate.aggregate.count;
-  }
-
-  noOfPagesRequiredCount() {
-    const noOfPages = Math.ceil(this.totalBenchmarkRunsCount / this.pageLimit);
-    for (let i = 1; i <= noOfPages; i++) {
-      this.noOfPagesRequired.push(i);
-    }
-    console.log('this.totalBenchmarkRunsCount:', this.totalBenchmarkRunsCount);
-    console.log('this.noOfPagesRequired:', this.noOfPagesRequired);
   }
 
   async initTables(benchmarkConfigId: string) {
@@ -145,8 +135,11 @@ export class EditBenchmarkConfigComponent implements OnInit, OnDestroy {
     const { originalGameId } = this.benchmarkConfig;
     this.originalGameId = originalGameId;
 
-    await this.getGameBenchmarks();
-    this.noOfPagesRequiredCount();
+    const now = new Date();
+    const startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
+    startDate.setHours(0, 0, 0, 0);
+
+    await this.getGameBenchmarks(startDate, now);
 
     const gameAnalyticsResp = await this.gqlService.gqlRequest(
       GqlConstants.GET_GAME_ANALYTICS,
