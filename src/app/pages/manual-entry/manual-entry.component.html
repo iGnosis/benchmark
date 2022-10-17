@@ -1,0 +1,111 @@
+<div class="container-fluid">
+  <div class="row">
+
+    <div *ngIf="benchmarkConfig && benchmarkConfig.screenRecordingUploadStatus" class="col-8">
+      <div class="pt-6">
+        <video #videoEle controls="true" style="width: 100%;" [controls]="false"></video>
+      </div>
+      <div class="">
+        <div class="row">
+          <div class="col">
+            <span style="min-width: 200px;" class="pt-1">
+              {{ currentTime }}
+            </span>
+          </div>
+          <div class="col text-center">
+            <div class="btn-group" role="group" aria-label="Basic example">
+              <b role="button" (click)="onBackward()" class="text-xl me-2" type="button">⏪</b>
+              <b role="button" *ngIf="!isPlaying" (click)="onPlay()" class="text-xl me-2" type="button">▶️</b>
+              <b role="button" *ngIf="isPlaying" (click)="onPause()" class="text-xl me-2" type="button">⏸</b>
+              <b role="button" (click)="onForward()" class="text-xl me-2" type="button">⏩</b>
+            </div>
+          </div>
+          <div class="col">&nbsp;</div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="benchmarkConfig && !benchmarkConfig.screenRecordingUploadStatus" class="p-4 col-8">
+      <div class="h2 text-center">No Screen Recording File Found. Please Upload One.</div>
+    </div>
+
+    <div class="col-4">
+      <div *ngIf="!currentPrompt">
+        <div class="pt-2 pb-2">
+          <div class="table-responsive border rounded-3 table-border">
+            <table class="table table-hover table-nowrap">
+              <thead class="table-light">
+                <tr>
+                  <th scope="col">No</th>
+                  <th scope="col">Prompt</th>
+                  <th scope="col">Manual Entry</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr role="button" (click)="currentPrompt = analytics"
+                  *ngFor="let analytics of analyticsList; index as i">
+                  <td>{{i+1}}</td>
+                  <td>
+                    {{analytics.prompt.type | titlecase}}
+                  </td>
+                  <td>
+                    <span *ngIf="analytics.manualEntry"
+                      class="badge rounded-pill text-xs bg-soft-success text-success">Complete</span>
+                    <span *ngIf="!analytics.manualEntry"
+                      class="badge rounded-pill text-xs bg-soft-danger text-danger">Incomplete</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="py-4" *ngIf="currentPrompt">
+        <div class="card">
+          <div class="px-4">
+            <h2>{{currentPrompt.prompt.type | titlecase}}</h2>
+          </div>
+          <div class="card-body p-4">
+            <form [noValidate]="true">
+              <div class="form-group py-3">
+                <label for="initiationTime">Initiation Time</label>
+                <input [(ngModel)]="currentPrompt.initiationTimeStamp" type="number" class="form-control"
+                  name="initiationTimeStamp" id="initiationTime">
+                <small id="initiationTime" class="form-text text-muted">When the reaction started</small>
+              </div>
+              <div class="form-group py-3">
+                <label for="completionTime">Completion Time</label>
+                <input [(ngModel)]="currentPrompt.completionTimestamp" name="completionTimeStamp" type="number"
+                  class="form-control" id="completionTime">
+              </div>
+              <div class="p-4">
+                <div class="form-check form-check-inline px-3">
+                  <input class="form-check-input" [(ngModel)]="currentPrompt.success" [value]="true" type="radio"
+                    name="prompt_state" id="prompt_state">
+                  <label class="form-check-label" for="prompt_state">Success</label>
+                </div>
+                <div class="form-check form-check-inline px-3">
+                  <input class="form-check-input" [(ngModel)]="currentPrompt.success" [value]="false" type="radio"
+                    name="prompt_state" id="prompt_state2">
+                  <label class="form-check-label" for="prompt_state2">Miss</label>
+                </div>
+              </div>
+              <div class="p-4 row">
+                <div class="col-md-6 d-flex justify-content-start">
+                  <button (click)="saveManualEntry(currentPrompt)" class="btn btn-primary">Save</button>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                  <button (click)="currentPrompt= undefined" type="submit" class="btn btn-primary">Back</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+
+
+      </div>
+    </div>
+
+  </div>
+</div>

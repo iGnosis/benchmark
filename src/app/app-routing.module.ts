@@ -6,7 +6,10 @@ import { AllBenchmarkConfigsComponent } from './pages/all-benchmark-configs/all-
 import { AllBenchmarksComponent } from './pages/all-benchmarks/all-benchmarks.component';
 import { EditBenchmarkConfigComponent } from './pages/edit-benchmark-config/edit-benchmark-config.component';
 import { LoginComponent } from './pages/login/login.component';
+import { ManualEntryComponent } from './pages/manual-entry/manual-entry.component';
 import { NewBenchmarkConfigComponent } from './pages/new-benchmark-config/new-benchmark-config.component';
+import { SessionComponent } from './pages/session/session.component';
+
 
 const routes: Routes = [
   { path: '', redirectTo: 'app/configs/all', pathMatch: 'full' },
@@ -15,12 +18,14 @@ const routes: Routes = [
     canActivateChild: [PublicGuard],
     children: [{ path: 'login', component: LoginComponent }],
   },
+  { path: "app/session", component: SessionComponent, canActivate: [PrivateGuard] },
   {
     path: 'app',
     canActivateChild: [PrivateGuard],
     children: [
       { path: 'configs/all', component: AllBenchmarkConfigsComponent },
       { path: 'configs/new', component: NewBenchmarkConfigComponent },
+      { path: 'configs/edit/manual/:id', component: ManualEntryComponent },
       { path: 'configs/edit/:id', component: EditBenchmarkConfigComponent },
       { path: 'benchmarks/all', component: AllBenchmarksComponent },
     ],

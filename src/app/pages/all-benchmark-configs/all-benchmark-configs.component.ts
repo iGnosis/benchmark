@@ -1,16 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
-
-export interface BenchmarkConfig {
-  id: string;
-  isRawVideo: boolean;
-  isScreenRec: boolean;
-  activity: string;
-  bestAccuracy: number;
-  lastRun: string;
-  createdAt: number;
-  setupUsage: number;
-}
+import { GqlConstants } from 'src/app/services/graphql/gql-constants';
+import { GraphqlService } from 'src/app/services/graphql/graphql.service';
+import { BenchmarkConfig } from 'src/types/main';
+import { MatSort } from '@angular/material/sort';
+import { MatTableDataSource } from '@angular/material/table';
+import { MatPaginator } from '@angular/material/paginator';
+import { invoke } from '@tauri-apps/api';
 
 @Component({
   selector: 'app-all-benchmark-configs',
@@ -18,50 +14,93 @@ export interface BenchmarkConfig {
   styleUrls: ['./all-benchmark-configs.component.scss'],
 })
 export class AllBenchmarkConfigsComponent implements OnInit {
-  constructor(private router: Router) {}
+  constructor(private router: Router, private gqlService: GraphqlService) {}
 
-  // mock data until API is available
-  configList: BenchmarkConfig[] = [
-    {
-      id: '1',
-      isRawVideo: true,
-      isScreenRec: true,
-      activity: 'Sit, Stand, Achieve',
-      bestAccuracy: 99,
-      lastRun: '5 minutes',
-      createdAt: 1664973599567,
-      setupUsage: 10,
-    },
-    {
-      id: '2',
-      isRawVideo: true,
-      isScreenRec: false,
-      activity: 'Beat Boxer',
-      bestAccuracy: 80,
-      lastRun: '3 minutes',
-      createdAt: 1664973599567,
-      setupUsage: 90,
-    },
-    {
-      id: '3',
-      isRawVideo: false,
-      isScreenRec: true,
-      activity: 'Sound Explorer',
-      bestAccuracy: 90,
-      lastRun: '2 minutes',
-      createdAt: 1664973599567,
-      setupUsage: 80,
-    },
+  benchmarkConfigsListDataSource!: MatTableDataSource<BenchmarkConfig>;
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
+
+  displayColumns = [
+    'rawVideoUrl',
+    'screenRecordingUrl',
+    'activity',
+    'bestAccuracy',
+    'lastRun',
+    'createdAt',
+    'setupUsage',
   ];
 
-  ngOnInit(): void {}
+  async ngOnInit() {
+    const now = new Date();
+    const sevenDaysInPast = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate() - 7
+    );
+    sevenDaysInPast.setHours(0, 0, 0, 0);
+    this.getBenchmarkConfigs(sevenDaysInPast, now);
+  }
+
+  startDate?: Date;
+  endDate?: Date;
+  changeBenchmarkConfigDates(type: 'start' | 'end', date: Date) {
+    console.log(`${type}: ${date}`);
+    if (!date) return;
+    switch (type) {
+      case 'start':
+        if (date !== this.startDate) {
+          date.setHours(0, 0, 0, 0);
+          this.startDate = date;
+          this.endDate = undefined;
+        }
+        break;
+      case 'end':
+        if (date !== this.endDate) {
+          this.endDate = date;
+        }
+        break;
+    }
+    if (this.startDate && this.endDate) {
+      this.getBenchmarkConfigs(this.startDate, this.endDate);
+    }
+  }
+
+  async getBenchmarkConfigs(startDate: Date, endDate: Date) {
+    const reloadEndDate = new Date(new Date(endDate).setHours(24, 0, 0, 0));
+    const benchmarkConfigs = await this.gqlService.gqlRequest(
+      GqlConstants.GET_ALL_BENCHMARK_CONFIGS,
+      {
+        startDate,
+        endDate: reloadEndDate,
+      },
+      true
+    );
+    console.log(
+      'allBenchmarkConfigs::',
+      benchmarkConfigs.game_benchmark_config
+    );
+    this.benchmarkConfigsListDataSource = new MatTableDataSource(
+      benchmarkConfigs.game_benchmark_config
+    );
+    this.benchmarkConfigsListDataSource.data.forEach((data) => {
+      data.activity = data.game.gameName;
+    });
+    this.benchmarkConfigsListDataSource.paginator = this.paginator;
+    this.benchmarkConfigsListDataSource.sort = this.sort;
+  }
 
   redirectToCreateNewBenchmark() {
     this.router.navigate(['/app/configs/new']);
   }
 
   editBenchmarkConfig(id: string) {
-    this.router.navigate(['/app/configs/edit/', id]);
     console.log('open editBenchmarkConfig, id::', id);
+    this.router.navigate(['/app/configs/edit/', id]);
+  }
+
+  getDateFromISOString(IsoString: string): string {
+    const dateString = new Date(IsoString);
+    const [_day, month, date, year] = dateString.toDateString().split(' ');
+    return `${month} ${date}, ${year}`;
   }
 }

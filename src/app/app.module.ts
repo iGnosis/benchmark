@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { HttpClientModule } from '@angular/common/http';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -12,6 +13,16 @@ import { NewBenchmarkConfigComponent } from './pages/new-benchmark-config/new-be
 import { EditBenchmarkConfigComponent } from './pages/edit-benchmark-config/edit-benchmark-config.component';
 import { CommonModule } from '@angular/common';
 import { AllBenchmarksComponent } from './pages/all-benchmarks/all-benchmarks.component';
+import { ManualEntryComponent } from './pages/manual-entry/manual-entry.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { MatTableModule } from '@angular/material/table'
+import { MatSortModule } from '@angular/material/sort';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { SessionComponent } from './pages/session/session.component';
+import { SafePipe } from './pipes/safe/safe.pipe';
 
 @NgModule({
   declarations: [
@@ -21,8 +32,24 @@ import { AllBenchmarksComponent } from './pages/all-benchmarks/all-benchmarks.co
     NewBenchmarkConfigComponent,
     EditBenchmarkConfigComponent,
     AllBenchmarksComponent,
+    ManualEntryComponent,
+    SessionComponent,
+    SafePipe
   ],
-  imports: [BrowserModule, AppRoutingModule, FormsModule, CommonModule],
+  imports: [
+    BrowserModule,
+    AppRoutingModule,
+    FormsModule,
+    CommonModule,
+    HttpClientModule,
+    BrowserAnimationsModule,
+    MatTableModule,
+    MatSortModule,
+    MatPaginatorModule,
+    MatDatepickerModule,
+    MatFormFieldModule,
+    MatNativeDateModule
+  ],
   providers: [PublicGuard, PrivateGuard],
   bootstrap: [AppComponent],
 })

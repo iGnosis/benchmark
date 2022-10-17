@@ -1,6 +1,22 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { DownloadService } from 'src/app/services/download/download.service';
+import { GqlConstants } from 'src/app/services/graphql/gql-constants';
+import { GraphqlService } from 'src/app/services/graphql/graphql.service';
+import { JwtService } from 'src/app/services/jwt/jwt.service';
+import { UploadService } from 'src/app/services/upload/upload.service';
+import { MatSort } from '@angular/material/sort';
+import { MatTableDataSource } from '@angular/material/table';
+import { MatPaginator } from '@angular/material/paginator';
+
+import {
+  AnalyticsDTO,
+  BenchmarkConfig,
+  BenchmarkRun,
+  VideoUploadUrlsResp,
+} from 'src/types/main';
 
 export interface Prompt {
   id: string;
@@ -12,12 +28,7 @@ export interface Prompt {
   state: 'success' | 'failure';
 }
 
-export interface BenchmarkRun {
-  id: string;
-  activity: string;
-  accuracy: number;
-  createdAt: string;
-}
+type videoUploadStatus = 'pending' | 'in-progress' | 'uploaded'
 
 @Component({
   selector: 'app-edit-benchmark-config',
@@ -25,86 +36,194 @@ export interface BenchmarkRun {
   styleUrls: ['./edit-benchmark-config.component.scss'],
 })
 export class EditBenchmarkConfigComponent implements OnInit, OnDestroy {
-  constructor(private route: ActivatedRoute, private router: Router) {}
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private gqlService: GraphqlService,
+    private uploadService: UploadService,
+    private downloadService: DownloadService
+  ) {
+    this.sort = new MatSort();
+  }
 
   private routeSub!: Subscription;
-  private configId!: string;
+  private benchmarkConfigId!: string;
+  rawVideoUploadStatus: videoUploadStatus = 'pending';
+  screenRecVideoUploadStatus: videoUploadStatus = 'pending';
+  benchmarkConfig!: BenchmarkConfig;
 
-  // TODO: remove mock data, Integrate APIs.
-  promptsList: Prompt[] = [
-    {
-      id: '1',
-      prompt: 'red',
-      initiationTime: '400',
-      completionTime: '643',
-      startTime: '01:02:450',
-      endTime: '01:04:535',
-      state: 'success',
-    },
-    {
-      id: '2',
-      prompt: 'blue',
-      initiationTime: '500',
-      completionTime: '743',
-      startTime: '01:02:450',
-      endTime: '01:04:535',
-      state: 'failure',
-    },
-    {
-      id: '3',
-      prompt: 'blue',
-      initiationTime: '200',
-      completionTime: '443',
-      startTime: '01:02:450',
-      endTime: '01:04:535',
-      state: 'success',
-    },
-    {
-      id: '4',
-      prompt: 'red',
-      initiationTime: '300',
-      completionTime: '543',
-      startTime: '01:02:450',
-      endTime: '01:04:535',
-      state: 'failure',
-    },
+  originalGameId!: string;
+  analyticsList!: AnalyticsDTO[];
+  benchmarkRunsListDataSource!: MatTableDataSource<BenchmarkRun>;
+  benchmarksDisplayedColumns: string[] = [
+    'activityName',
+    'completionTimeAbsAvg',
+    'createdAt',
+    'download',
   ];
 
-  previousBenchmarkRuns: BenchmarkRun[] = [
-    {
-      id: '1',
-      activity: 'Sit, Stand, Achieve',
-      accuracy: 89,
-      createdAt: 'Aug 20, 2022',
-    },
-    {
-      id: '2',
-      activity: 'Beat Boxer',
-      accuracy: 49,
-      createdAt: 'Aug 19, 2022',
-    },
-    {
-      id: '3',
-      activity: 'Sound Explorer',
-      accuracy: 70,
-      createdAt: 'Aug 18, 2022',
-    },
-  ];
-
-  file: File | null = null; // Variable to store file
+  @ViewChild(MatSort) sort: MatSort;
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   ngOnInit(): void {
     this.routeSub = this.route.params.subscribe((params) => {
-      console.log('config:id::', params['id']);
-      this.configId = params['id'];
+      this.benchmarkConfigId = params['id'];
+      console.log('config:id::', this.benchmarkConfigId);
+    });
+    this.initTables(this.benchmarkConfigId);
+  }
+
+  gameBenchmarkStartDate?: Date;
+  gameBenchmarkEndDate?: Date;
+  changeGameBenchmarksDates(type: 'start' | 'end', date: Date) {
+    console.log(`${type}: ${date}`);
+    if (!date) return;
+    switch (type) {
+      case 'start':
+        if (date !== this.gameBenchmarkStartDate) {
+          date.setHours(0, 0, 0, 0);
+          this.gameBenchmarkStartDate = date;
+          this.gameBenchmarkEndDate = undefined;
+        }
+        break;
+      case 'end':
+        if (date !== this.gameBenchmarkEndDate) {
+          this.gameBenchmarkEndDate = date;
+        }
+        break;
+    }
+    if (this.gameBenchmarkStartDate && this.gameBenchmarkEndDate) {
+      this.getGameBenchmarks(this.gameBenchmarkStartDate, this.gameBenchmarkEndDate);
+    }
+  }
+
+  async getGameBenchmarks(startDate: Date, endDate: Date) {
+    const reloadEndDate = new Date(new Date(endDate).setHours(24, 0, 0, 0));
+    const benchmarkRunResp: {
+      game_benchmarks: BenchmarkRun[]
+    } =
+      await this.gqlService.gqlRequest(
+        GqlConstants.GET_GAME_BENCHMARKS_FOR_CONFIG,
+        {
+          originalGameId: this.originalGameId,
+          startDate,
+          endDate: reloadEndDate
+        }
+      );
+
+    this.benchmarkRunsListDataSource = new MatTableDataSource(benchmarkRunResp.game_benchmarks);
+    this.benchmarkRunsListDataSource.data.forEach(data => {
+      data.completionTimeAbsAvg = data.avgAccuracy.completionTimeAbsAvg
+    })
+
+    this.benchmarkRunsListDataSource.sort = this.sort;
+    this.benchmarkRunsListDataSource.paginator = this.paginator;
+
+    console.log('benchmarks::runs::', this.benchmarkRunsListDataSource);
+  }
+
+  async initTables(benchmarkConfigId: string) {
+    const benchmarkConfigResp = await this.gqlService.gqlRequest(
+      GqlConstants.GET_BENCHMARK_CONFIG,
+      { benchmarkConfigId }
+    );
+    this.benchmarkConfig = benchmarkConfigResp.game_benchmark_config_by_pk;
+    console.log('benchmark::config:', this.benchmarkConfig);
+
+    const { originalGameId } = this.benchmarkConfig;
+    this.originalGameId = originalGameId;
+
+    const now = new Date();
+    const startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
+    startDate.setHours(0, 0, 0, 0);
+
+    await this.getGameBenchmarks(startDate, now);
+
+    const gameAnalyticsResp = await this.gqlService.gqlRequest(
+      GqlConstants.GET_GAME_ANALYTICS,
+      {
+        gameId: originalGameId,
+      }
+    );
+    this.analyticsList = gameAnalyticsResp.game_by_pk.analytics;
+    console.log('game:analytics::', gameAnalyticsResp.game_by_pk.analytics);
+  }
+
+  async onRawVideoUpload(event: any) {
+    const rawFile: File = event.target.files[0];
+    const { webcamUploadUrl } = await this.getUploadUrl();
+    console.log('uploading:url:webcamUploadUrl::', webcamUploadUrl);
+    this.rawVideoUploadStatus = 'in-progress';
+    this.uploadService.uploadVideo(webcamUploadUrl, rawFile).subscribe({
+      next: async (data) => {
+        if (data.status === 200) {
+          // setting the upload status in the db to true.
+          await this.gqlService.gqlRequest(
+            GqlConstants.SET_RAWVIDEO_UPLOAD_STATUS,
+            {
+              benchmarkConfigId: this.benchmarkConfigId,
+            }
+          );
+
+          this.benchmarkConfig.rawVideoUploadStatus = true;
+
+          console.log('upload:success::', data.status);
+          this.gqlService.gqlRequest(GqlConstants.TRANSCODE_VIDEO, {
+            benchmarkConfigId: this.benchmarkConfigId,
+            videoType: 'webcam',
+          });
+          this.rawVideoUploadStatus = 'uploaded';
+        }
+      },
+      error: (err) => {
+        console.error('upload:Error::', err);
+      },
     });
   }
 
-  onFileUpload(event: any, type: 'withPrompts' | 'withoutPrompts') {
-    // console.log(event);
-    this.file = event.target.files[0];
-    console.log('file::', this.file);
-    console.log('fileType::', type);
+  async onScreenRecUpload(event: any) {
+    const screenRecFile: File = event.target.files[0];
+    const { screenCaptureUploadUrl } = await this.getUploadUrl();
+    this.screenRecVideoUploadStatus = 'in-progress';
+    console.log(
+      'uploading:url:screenCaptureUploadUrl::',
+      screenCaptureUploadUrl
+    );
+    this.uploadService
+      .uploadVideo(screenCaptureUploadUrl, screenRecFile)
+      .subscribe({
+        next: async (data) => {
+          if (data.status === 200) {
+            // setting the upload status in the db to true.
+            await this.gqlService.gqlRequest(
+              GqlConstants.SET_SCREENREC_UPLOAD_STATUS,
+              {
+                benchmarkConfigId: this.benchmarkConfigId,
+              }
+            );
+
+            this.benchmarkConfig.screenRecordingUploadStatus = true;
+
+            console.log('upload:success::', data.status);
+            this.gqlService.gqlRequest(GqlConstants.TRANSCODE_VIDEO, {
+              benchmarkConfigId: this.benchmarkConfigId,
+              videoType: 'screenCapture',
+            });
+            this.screenRecVideoUploadStatus = 'uploaded';
+          }
+        },
+        error: (err) => {
+          console.error('upload:Error::', err);
+        },
+      });
+  }
+
+  async getUploadUrl() {
+    const videoUploadUrlsResp: VideoUploadUrlsResp =
+      await this.gqlService.gqlRequest(GqlConstants.GET_VIDEO_UPLOAD_URLS, {
+        benchmarkConfigId: this.benchmarkConfigId,
+      });
+    return videoUploadUrlsResp.uploadBenchmarkVideos.data;
   }
 
   ngOnDestroy() {
@@ -112,12 +231,44 @@ export class EditBenchmarkConfigComponent implements OnInit, OnDestroy {
   }
 
   runBenchmark() {
-    console.log('run:benchmark::', this.configId);
-    this.router.navigate(['app/benchmarks/all']);
+    console.log('run:benchmark::', this.benchmarkConfigId);
+    this.router.navigate(["/app/session"], {
+      queryParams: {
+        benchmarkId: this.benchmarkConfigId
+      }
+    });
+  }
+
+  runManualBenchmark() {
+    this.router.navigate(['app/configs/edit/manual', this.benchmarkConfigId]);
   }
 
   downloadBenchmarkReport(benchmarkRunId: string) {
-    // TODO: generate/download a benchmark report
     console.log('download::benchmarkRun::id:', benchmarkRunId);
+    console.log('benchmark:config::id:', this.benchmarkConfigId);
+
+    this.downloadService
+      .downloadBenchmarkReport(benchmarkRunId, this.benchmarkConfigId)
+      .subscribe((arrayBuffer) => {
+        if (arrayBuffer) {
+          var a = document.createElement('a');
+          document.body.appendChild(a);
+          const blob = new Blob([arrayBuffer], {
+            type: 'application/vnd.ms-excel',
+          });
+
+          a.href = URL.createObjectURL(blob);
+          a.download = `${benchmarkRunId}-report.xlsx`;
+          a.click();
+          URL.revokeObjectURL(a.href);
+          a.remove();
+        }
+      });
+  }
+
+  getDateFromISOString(IsoString: string): string {
+    const dateString = new Date(IsoString);
+    const [_day, month, date, year] = dateString.toDateString().split(' ');
+    return `${month} ${date}, ${year}`;
   }
 }

@@ -1,23 +1,26 @@
-<div style="height: 100vh; width: 99vw;">
+<div class="container-fluid">
 
   <div class="py-10 px-10 mx-auto">
     <div class="row">
       <div class="col-lg-6 d-flex justify-content-start align-items-center">
         <p style="font-weight: 700;" class="h1 text-primary mb-12">Edit Benchmark Configuration</p>
       </div>
-      <div class="col-lg-6 d-flex justify-content-end align-items-start">
-        <button (click)="runBenchmark()" class="btn btn-primary"><i class="bi bi-play-fill px-2"></i>Run New
+      <div class="col-lg-6 d-flex justify-content-end align-items-start ">
+        <button (click)="runManualBenchmark()" class="btn btn-primary mx-4"><i class="bi bi-play-fill px-2"></i>Manual
+          benchmark</button>
+        <button (click)="runBenchmark()" class="btn btn-primary mx-4"><i class="bi bi-play-fill px-2"></i>Run New
           Benchmark</button>
       </div>
     </div>
 
-    <div class="p-6">
+    <div class="p-6" *ngIf="benchmarkConfig && !(benchmarkConfig.screenRecordingUploadStatus)">
       <div class="card shadow-none border-2 border-dashed border-primary-hover position-relative">
         <div class="d-flex justify-content-center px-5 py-5">
-          <label for="file_upload" class="position-absolute w-full h-full top-0 start-0 cursor-pointer">
-            <input (change)="onFileUpload($event, 'withPrompts')" id="file_upload" name="file_upload" type="file"
+          <label for="screenRec_upload" class="position-absolute w-full h-full top-0 start-0 cursor-pointer">
+            <input (change)="onScreenRecUpload($event)" id="screenRec_upload" name="screenRec_upload" type="file"
               class="visually-hidden">
           </label>
+
           <div class="text-center">
             <div class="d-flex m-3 align-items-center justify-content-center">
               <p class="h1 text-primary font-bold">Upload Screen Recorded video</p>
@@ -25,10 +28,13 @@
             <p class="h2 text-gray text-muted m-3">
               Add the video with prompts here.
             </p>
-            <div class="text-2xl m-3">
+            <div *ngIf="screenRecVideoUploadStatus === 'in-progress'" class="spinner-border" role="status">
+              <span class="sr-only"></span>
+            </div>
+            <div *ngIf="screenRecVideoUploadStatus === 'pending'" class="text-2xl m-3">
               <i class="bi bi-upload"></i>
             </div>
-            <p class="h5 text-gray text-muted m-3">
+            <p *ngIf="screenRecVideoUploadStatus === 'pending'" class="h5 text-gray text-muted m-3">
               Click to upload a file.
             </p>
           </div>
@@ -36,11 +42,11 @@
       </div>
     </div>
 
-    <div class="p-6">
+    <div class="p-6" *ngIf="benchmarkConfig && !benchmarkConfig.rawVideoUploadStatus">
       <div class="card shadow-none border-2 border-dashed border-primary-hover position-relative">
         <div class="d-flex justify-content-center px-5 py-5">
-          <label for="file_upload" class="position-absolute w-full h-full top-0 start-0 cursor-pointer">
-            <input (change)="onFileUpload($event, 'withoutPrompts')" id="file_upload" name="file_upload" type="file"
+          <label for="rawVideo_upload" class="position-absolute w-full h-full top-0 start-0 cursor-pointer">
+            <input (change)="onRawVideoUpload($event)" id="rawVideo_upload" name="rawVideo_upload" type="file"
               class="visually-hidden">
           </label>
           <div class="text-center">
@@ -50,17 +56,19 @@
             <p class="h2 text-gray text-muted m-3">
               Add the video <span class="text-dark"><u>without</u></span> prompts here.
             </p>
-            <div class="text-2xl m-3">
+            <div *ngIf="rawVideoUploadStatus === 'in-progress'" class="spinner-border" role="status">
+              <span class="sr-only"></span>
+            </div>
+            <div *ngIf="rawVideoUploadStatus === 'pending'" class="text-2xl m-3">
               <i class="bi bi-upload"></i>
             </div>
-            <p class="h5 text-gray text-muted m-3">
+            <p *ngIf="rawVideoUploadStatus === 'pending'" class="h5 text-gray text-muted m-3">
               Click to upload a file.
             </p>
           </div>
         </div>
       </div>
     </div>
-
 
     <div class="py-4">
       <div class="px-2 py-3 text-dark" style="font-weight: 600; line-height: 24px;">
@@ -70,68 +78,38 @@
         <table class="table table-hover table-nowrap">
           <thead class="table-light">
             <tr>
-              <th></th>
               <th scope="col">Prompt</th>
               <th scope="col">Initiation Time</th>
               <th scope="col">Completion Time</th>
               <th scope="col">Start Time</th>
               <th scope="col">End Time</th>
               <th scope="col">State</th>
-              <th></th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let prompt of promptsList">
-
-
-              <td class="text-lg" scope="col">
-                <div class="form-check">
-                  <input class="form-check-input" name="prompt_radio" type="radio" value={{prompt.id}}
-                    id="promptSelectRadio">
-                  <!-- <label class="form-check-label" for="promptSelectRadio"></label> -->
-                </div>
-              </td>
+            <tr *ngFor="let analytics of analyticsList">
 
               <td>
-                {{prompt.prompt | titlecase}}
+                {{analytics.prompt.type | titlecase}}
               </td>
               <td>
-                {{prompt.initiationTime + ' ms'}}
+                {{'N/A'}}
               </td>
               <td>
-                {{prompt.completionTime + ' ms'}}
+                {{analytics.reaction.completionTimeInMs ? analytics.reaction.completionTimeInMs + ' ms' : 'N/A'}}
               </td>
               <td>
-                {{prompt.startTime}}
+                {{analytics.prompt.timestamp}}
               </td>
               <td>
-                {{prompt.endTime}}
+                {{analytics.result.timestamp}}
               </td>
               <td>
 
-                <span *ngIf="prompt.state === 'success'"
+                <span *ngIf="analytics.result.type === 'success'"
                   class="badge rounded-pill text-xs bg-soft-success text-success">Success</span>
-                <span *ngIf="prompt.state === 'failure'"
+                <span *ngIf="analytics.result.type === 'failure'"
                   class="badge rounded-pill text-xs bg-soft-danger text-danger">Failure</span>
-              </td>
-              <td class="text-end">
-                <div class="dropdown">
-                  <a class="text-muted" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true"
-                    aria-expanded="false">
-                    <i class="bi bi-three-dots-vertical"></i>
-                  </a>
-                  <div class="dropdown-menu dropdown-menu-end">
-                    <a href="#!" class="dropdown-item">
-                      Action
-                    </a>
-                    <a href="#!" class="dropdown-item">
-                      Another action
-                    </a>
-                    <a href="#!" class="dropdown-item">
-                      Something else here
-                    </a>
-                  </div>
-                </div>
               </td>
             </tr>
           </tbody>
@@ -144,55 +122,54 @@
         All Benchmarks In This Configuration
       </div>
 
+      <div class="date-filter">
+        <mat-form-field appearance="standard">
+          <mat-label>Enter a date range</mat-label>
+          <mat-date-range-input [rangePicker]="picker">
+            <input matStartDate placeholder="Start date" [value]="gameBenchmarkStartDate"
+              (dateChange)="changeGameBenchmarksDates('start', $event.value)">
+            <input matEndDate placeholder="End date" [value]="gameBenchmarkEndDate"
+              (dateChange)="changeGameBenchmarksDates('end', $event.value)">
+          </mat-date-range-input>
+          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-date-range-picker #picker></mat-date-range-picker>
+        </mat-form-field>
+      </div>
+
       <div class="table-responsive border rounded-3 table-border">
-        <table class="table table-hover table-nowrap">
-          <thead class="table-light">
-            <tr>
-              <th scope="col">Activity</th>
-              <th scope="col">Accuracy</th>
-              <th scope="col">Created At</th>
-              <th scope="col">Download Report</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let benchmarkRun of previousBenchmarkRuns">
-              <td>
-                {{benchmarkRun.activity | titlecase}}
-              </td>
-              <td>
-                {{benchmarkRun.accuracy + ' ms'}}
-              </td>
-              <td>
-                {{benchmarkRun.createdAt}}
-              </td>
-              <td>
-                <button (click)="downloadBenchmarkReport(benchmarkRun.id)" class="btn btn-light text-primary text-sm download-btn">Download</button>
-              </td>
-              <td class="text-end">
-                <div class="dropdown">
-                  <a class="text-muted" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true"
-                    aria-expanded="false">
-                    <i class="bi bi-three-dots-vertical"></i>
-                  </a>
-                  <div class="dropdown-menu dropdown-menu-end">
-                    <a href="#!" class="dropdown-item">
-                      Action
-                    </a>
-                    <a href="#!" class="dropdown-item">
-                      Another action
-                    </a>
-                    <a href="#!" class="dropdown-item">
-                      Something else here
-                    </a>
-                  </div>
-                </div>
-              </td>
-            </tr>
-          </tbody>
+        <table mat-table [dataSource]="benchmarkRunsListDataSource" class="mat-elevation-z8" matSort>
+          <ng-container matColumnDef="activityName">
+            <th mat-header-cell *matHeaderCellDef> Activity </th>
+            <td mat-cell *matCellDef="let element"> {{ element.game.gameName.split('_').join(' ') | titlecase}} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="completionTimeAbsAvg">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Avg. Completion Time Accuracy </th>
+            <td mat-cell *matCellDef="let element"> {{element.completionTimeAbsAvg}} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="createdAt">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Created At </th>
+            <td mat-cell *matCellDef="let element"> {{getDateFromISOString(element.createdAt)}} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="download">
+            <th mat-header-cell *matHeaderCellDef> Download Report </th>
+            <td mat-cell *matCellDef="let element">
+              <button (click)="downloadBenchmarkReport(element.gameId)"
+                class="btn btn-light text-primary text-sm download-btn">Download</button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="benchmarksDisplayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: benchmarksDisplayedColumns;"></tr>
         </table>
+
+        <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons
+          aria-label="Select page of periodic elements">
+        </mat-paginator>
+
       </div>
     </div>
-
   </div>
 </div>
