@@ -34,7 +34,7 @@
             "allowedCommonJsDependencies": ["phone"]
           },
           "configurations": {
-            "production": {
+            "stage": {
               "budgets": [
                 {
                   "type": "initial",
@@ -50,7 +50,7 @@
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",
-                  "with": "src/environments/environment.prod.ts"
+                  "with": "src/environments/environment.stage.ts"
                 }
               ],
               "outputHashing": "all"
