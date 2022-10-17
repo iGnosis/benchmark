@@ -34,7 +34,7 @@ jobs:
       - name: Install app dependencies and build web
         run: |
           npm install
-          npm run build -c "stage"
+          npm run build -- -c "stage"
 
       - name: Build the app
         uses: tauri-apps/tauri-action@v0
