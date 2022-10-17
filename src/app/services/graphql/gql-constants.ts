@@ -21,7 +21,7 @@ export const GqlConstants = {
     }
   }`,
   GET_ALL_BENCHMARK_CONFIGS: `query GetBenchmarkConfigs($startDate: timestamptz!, $endDate: timestamptz!) {
-    game_benchmark_config(order_by: {createdAt: asc}, where: {createdAt: {_gte: $startDate, _lte: $endDate}}) {
+    game_benchmark_config(order_by: {createdAt: desc}, where: {createdAt: {_gte: $startDate, _lte: $endDate}}) {
       id
       originalGameId
       createdAt
