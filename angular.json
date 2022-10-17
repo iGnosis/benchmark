@@ -34,7 +34,7 @@
             "allowedCommonJsDependencies": ["phone"]
           },
           "configurations": {
-            "stage": {
+            "production": {
               "budgets": [
                 {
                   "type": "initial",
