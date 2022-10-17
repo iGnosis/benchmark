@@ -99,6 +99,7 @@ export class ManualEntryComponent implements AfterViewInit, OnInit, OnDestroy {
       }
     );
     this.analyticsList = gameAnalyticsResp.game_by_pk.analytics;
+    this.analyticsList = this.analyticsList.filter(analytic => analytic.prompt.type !== 'start');
     console.log('analytics::', gameAnalyticsResp.game_by_pk.analytics);
 
     this.manualCalculations = this.benchmarkConfig.manualCalculations || {};
