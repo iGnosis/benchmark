@@ -52,6 +52,7 @@ export class SessionComponent implements OnInit, OnDestroy {
           // this.webcam?.getTracks().forEach(track => {
           //   track.stop()
           // })
+          console.log('event.data.gameBenchmarkId', event.data.gameBenchmarkId);
           await this.gameBenchmarkService.updateUserConf(event.data.gameBenchmarkId as string)
           this.router.navigate(['configs/edit/', this.benchmarkId])
         }

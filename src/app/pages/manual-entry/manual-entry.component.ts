@@ -79,8 +79,7 @@ export class ManualEntryComponent implements AfterViewInit, OnInit, OnDestroy {
   async initTables(benchmarkConfigId: string) {
     const benchmarkConfigResp = await this.gqlService.gqlRequest(
       GqlConstants.GET_BENCHMARK_CONFIG,
-      { benchmarkConfigId },
-      true
+      { benchmarkConfigId }
     );
     this.benchmarkConfig = benchmarkConfigResp.game_benchmark_config_by_pk;
     console.log('benchmark::config:', this.benchmarkConfig);

@@ -1,14 +1,12 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { map, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { DownloadService } from 'src/app/services/download/download.service';
 import { GqlConstants } from 'src/app/services/graphql/gql-constants';
 import { GraphqlService } from 'src/app/services/graphql/graphql.service';
 import { JwtService } from 'src/app/services/jwt/jwt.service';
 import { UploadService } from 'src/app/services/upload/upload.service';
-import { environment } from 'src/environments/environment';
-import { MatTable } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
@@ -30,6 +28,8 @@ export interface Prompt {
   state: 'success' | 'failure';
 }
 
+type videoUploadStatus = 'pending' | 'in-progress' | 'uploaded'
+
 @Component({
   selector: 'app-edit-benchmark-config',
   templateUrl: './edit-benchmark-config.component.html',
@@ -41,8 +41,6 @@ export class EditBenchmarkConfigComponent implements OnInit, OnDestroy {
     private router: Router,
     private gqlService: GraphqlService,
     private uploadService: UploadService,
-    private http: HttpClient,
-    private jwtService: JwtService,
     private downloadService: DownloadService
   ) {
     this.sort = new MatSort();
@@ -50,6 +48,8 @@ export class EditBenchmarkConfigComponent implements OnInit, OnDestroy {
 
   private routeSub!: Subscription;
   private benchmarkConfigId!: string;
+  rawVideoUploadStatus: videoUploadStatus = 'pending';
+  screenRecVideoUploadStatus: videoUploadStatus = 'pending';
   benchmarkConfig!: BenchmarkConfig;
 
   originalGameId!: string;
@@ -153,6 +153,7 @@ export class EditBenchmarkConfigComponent implements OnInit, OnDestroy {
     const rawFile: File = event.target.files[0];
     const { webcamUploadUrl } = await this.getUploadUrl();
     console.log('uploading:url:webcamUploadUrl::', webcamUploadUrl);
+    this.rawVideoUploadStatus = 'in-progress';
     this.uploadService.uploadVideo(webcamUploadUrl, rawFile).subscribe({
       next: async (data) => {
         if (data.status === 200) {
@@ -171,6 +172,7 @@ export class EditBenchmarkConfigComponent implements OnInit, OnDestroy {
             benchmarkConfigId: this.benchmarkConfigId,
             videoType: 'webcam',
           });
+          this.rawVideoUploadStatus = 'uploaded';
         }
       },
       error: (err) => {
@@ -182,6 +184,7 @@ export class EditBenchmarkConfigComponent implements OnInit, OnDestroy {
   async onScreenRecUpload(event: any) {
     const screenRecFile: File = event.target.files[0];
     const { screenCaptureUploadUrl } = await this.getUploadUrl();
+    this.screenRecVideoUploadStatus = 'in-progress';
     console.log(
       'uploading:url:screenCaptureUploadUrl::',
       screenCaptureUploadUrl
@@ -206,6 +209,7 @@ export class EditBenchmarkConfigComponent implements OnInit, OnDestroy {
               benchmarkConfigId: this.benchmarkConfigId,
               videoType: 'screenCapture',
             });
+            this.screenRecVideoUploadStatus = 'uploaded';
           }
         },
         error: (err) => {
