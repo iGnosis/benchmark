@@ -3,8 +3,7 @@
 
     <div *ngIf="benchmarkConfig && benchmarkConfig.screenRecordingUploadStatus" class="col-8">
       <div class="pt-6">
-        <video #video controls="true" style="width: 100%;" [controls]="false">
-        </video>
+        <video #videoEle controls="true" style="width: 100%;" [controls]="false"></video>
       </div>
       <div class="">
         <div class="row">

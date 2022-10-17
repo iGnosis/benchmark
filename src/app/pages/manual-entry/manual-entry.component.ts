@@ -5,7 +5,6 @@ import {
   HostListener,
   OnDestroy,
   OnInit,
-  Renderer2,
   ViewChild,
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
@@ -16,7 +15,6 @@ import {
   AnalyticsDTOWithPromptDetails,
   BenchmarkConfig,
 } from '../../../types/main';
-import { Prompt } from '../edit-benchmark-config/edit-benchmark-config.component';
 
 export enum KEY_CODE {
   UP_ARROW = 38,
@@ -34,7 +32,6 @@ export class ManualEntryComponent implements AfterViewInit, OnInit, OnDestroy {
   private routeSub!: Subscription;
   private benchmarkConfigId!: string;
   constructor(
-    private renderer: Renderer2,
     private route: ActivatedRoute,
     private gqlService: GraphqlService
   ) {}
@@ -43,7 +40,6 @@ export class ManualEntryComponent implements AfterViewInit, OnInit, OnDestroy {
     this.routeSub = this.route.params.subscribe((params) => {
       this.benchmarkConfigId = params['id'];
     });
-    this.initTables(this.benchmarkConfigId);
   }
 
   ngOnDestroy(): void {
@@ -52,14 +48,26 @@ export class ManualEntryComponent implements AfterViewInit, OnInit, OnDestroy {
 
   isPlaying = false;
 
-  ngAfterViewInit(): void {
+  async ngAfterViewInit() {
+    await this.initTables(this.benchmarkConfigId);
+
     this.video &&
       this.video.nativeElement.addEventListener('timeupdate', () => {
         this.onTimeUpdated();
       });
+
+    if (
+      this.benchmarkConfig.screenRecordingUrl &&
+      this.benchmarkConfig.screenRecordingUploadStatus
+    ) {
+      const source: HTMLSourceElement = document.createElement('source');
+      source.src = this.benchmarkConfig.screenRecordingUrl;
+      source.type = 'video/mp4';
+      this.video && this.video.nativeElement.appendChild(source);
+    }
   }
 
-  @ViewChild('video') video!: ElementRef<HTMLVideoElement>;
+  @ViewChild('videoEle') video!: ElementRef<HTMLVideoElement>;
   currentTime: number = 0;
   currentPrompt: AnalyticsDTOWithPromptDetails | undefined;
   currentMetric: any;
@@ -83,16 +91,6 @@ export class ManualEntryComponent implements AfterViewInit, OnInit, OnDestroy {
     );
     this.benchmarkConfig = benchmarkConfigResp.game_benchmark_config_by_pk;
     console.log('benchmark::config:', this.benchmarkConfig);
-
-    if (
-      this.benchmarkConfig.screenRecordingUrl &&
-      this.benchmarkConfig.screenRecordingUploadStatus
-    ) {
-      const source: HTMLSourceElement = document.createElement('source');
-      source.src = this.benchmarkConfig.screenRecordingUrl;
-      source.type = 'video/mp4';
-      this.video && this.video.nativeElement.appendChild(source);
-    }
 
     const gameAnalyticsResp = await this.gqlService.gqlRequest(
       GqlConstants.GET_GAME_ANALYTICS,
