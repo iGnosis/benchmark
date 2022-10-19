@@ -20,24 +20,16 @@ export class SessionComponent implements OnInit, OnDestroy {
     private jwtService: JwtService,
     private gameBenchmarkService: GameBenchmarkService
   ) {
-    this.benchmarkId = this.route.snapshot.paramMap.get("benchmarkId") as string;
-    console.log(this.benchmarkId);
+    this.benchmarkId = this.route.snapshot.queryParamMap.get('benchmarkId') as string,
     this.url = environment.activityEndpoint + "?benchmarkId=" + this.benchmarkId;
   }
 
-  ngOnDestroy() {
-    //   this.webcam?.getTracks().forEach(track => {
-    //     track.stop()
-    //   })
-  }
+  ngOnDestroy() {}
 
   async ngOnInit() {
     window.addEventListener("message", async (event) => {
       if (event && event.data && event.data.type) {
         if (event.data.type === 'activity-experience-ready') {
-          // if (!this.webcam) {
-          //   this.webcam = await navigator.mediaDevices.getUserMedia({ video: true });
-          // }
           this.session.nativeElement.contentWindow?.postMessage(
             {
               type: 'token',
@@ -49,18 +41,16 @@ export class SessionComponent implements OnInit, OnDestroy {
         }
         // sends a latest valid access_token.
         else if (event.data.type === 'end-game') {
-          // this.webcam?.getTracks().forEach(track => {
-          //   track.stop()
-          // })
           console.log('event.data.gameBenchmarkId', event.data.gameBenchmarkId);
           await this.gameBenchmarkService.updateUserConf(event.data.gameBenchmarkId as string)
           this.router.navigate(['configs/edit/', this.benchmarkId])
         }
       }
 
-      if (event && event.data && event.data.session && event.data.session.id) {
+      if (event && event.data && event.data.gameBenchmarkId) {
         this.router.navigate(['configs/edit/', this.benchmarkId])
       }
+
       if (event && event.data && event.data.type === 'check-auth' && !event.data.token) {
         this.jwtService.clearTokens();
       }
