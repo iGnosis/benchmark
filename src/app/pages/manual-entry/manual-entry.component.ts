@@ -14,14 +14,11 @@ import { GraphqlService } from 'src/app/services/graphql/graphql.service';
 import {
   AnalyticsDTOWithPromptDetails,
   BenchmarkConfig,
+  ManualCalculations,
+  ManualEntry,
 } from '../../../types/main';
 
-export enum KEY_CODE {
-  UP_ARROW = 38,
-  DOWN_ARROW = 40,
-  RIGHT_ARROW = 39,
-  LEFT_ARROW = 37,
-}
+
 
 @Component({
   selector: 'app-manual-entry',
@@ -69,20 +66,14 @@ export class ManualEntryComponent implements AfterViewInit, OnInit, OnDestroy {
 
   @ViewChild('videoEle') video!: ElementRef<HTMLVideoElement>;
   currentTime: number = 0;
-  currentPrompt: AnalyticsDTOWithPromptDetails | undefined;
+  currentPrompt: ManualEntry | undefined;
   currentMetric: any;
   promptsList: any[] = [];
 
   analyticsList!: AnalyticsDTOWithPromptDetails[];
   benchmarkConfig!: BenchmarkConfig;
 
-  manualCalculations: {
-    [promptId: string]: {
-      isSuccess: boolean;
-      completionTimeInMs: number;
-      initiationTimeInMs?: number;
-    };
-  } = {};
+  manualCalculations!: ManualCalculations;
 
   async initTables(benchmarkConfigId: string) {
     const benchmarkConfigResp = await this.gqlService.gqlRequest(
@@ -99,7 +90,9 @@ export class ManualEntryComponent implements AfterViewInit, OnInit, OnDestroy {
       }
     );
     this.analyticsList = gameAnalyticsResp.game_by_pk.analytics;
-    this.analyticsList = this.analyticsList.filter(analytic => analytic.prompt.type !== 'start');
+    this.analyticsList = this.analyticsList.filter(
+      (analytic) => analytic.prompt.type !== 'start'
+    );
     console.log('analytics::', gameAnalyticsResp.game_by_pk.analytics);
 
     this.manualCalculations = this.benchmarkConfig.manualCalculations || {};
@@ -112,23 +105,24 @@ export class ManualEntryComponent implements AfterViewInit, OnInit, OnDestroy {
     });
   }
 
-  async saveManualEntry(currentPrompt: AnalyticsDTOWithPromptDetails) {
+  async saveManualEntry(currentPrompt: ManualEntry) {
     console.log(currentPrompt);
 
     if (
       !currentPrompt.initiationTimeStamp ||
-      !currentPrompt.completionTimestamp
+      !currentPrompt.completionTimeStamp ||
+      !currentPrompt.promptId
     ) {
       return;
     }
 
-    const { id } = currentPrompt.prompt;
+    const id = currentPrompt.promptId;
 
     // TODO: calculate promptStartTime to calculate the initiationTime
     // const initiationTimeInMs =
     //   currentPrompt.initiationTimeStamp - promptStartTime;
 
-    const completionTimeStampInMS = currentPrompt.completionTimestamp * 1000;
+    const completionTimeStampInMS = currentPrompt.completionTimeStamp * 1000;
     const initiationTimeStampInMS = currentPrompt.initiationTimeStamp * 1000;
 
     const completionTimeInMs =
@@ -136,7 +130,9 @@ export class ManualEntryComponent implements AfterViewInit, OnInit, OnDestroy {
 
     this.manualCalculations = this.manualCalculations || {};
     this.manualCalculations[id] = {
-      isSuccess: currentPrompt.success as boolean,
+      initiationTimeStamp: currentPrompt.initiationTimeStamp,
+      completionTimeStamp: currentPrompt.completionTimeStamp,
+      isSuccess: currentPrompt.isSuccess as boolean,
       completionTimeInMs,
     };
 
@@ -158,6 +154,21 @@ export class ManualEntryComponent implements AfterViewInit, OnInit, OnDestroy {
     this.analyticsList[index].manualEntry = true;
 
     this.currentPrompt = undefined;
+  }
+
+  getManualCalculations(analytics: AnalyticsDTOWithPromptDetails): ManualEntry {
+    const promptId = analytics.prompt.id;
+    if (this.manualCalculations[promptId]) {
+      return {
+        ...this.manualCalculations[promptId],
+        promptId,
+        promptType: analytics.prompt.type,
+      };
+    }
+    return {
+      promptType: analytics.prompt.type,
+      promptId: analytics.prompt.id,
+    };
   }
 
   @HostListener('window:keyup', ['$event'])
@@ -183,7 +194,7 @@ export class ManualEntryComponent implements AfterViewInit, OnInit, OnDestroy {
       case 'Keyc':
       case 'KeyC':
         if (this.currentPrompt) {
-          this.currentPrompt.completionTimestamp = this.currentTime;
+          this.currentPrompt.completionTimeStamp = this.currentTime;
         }
         break;
     }

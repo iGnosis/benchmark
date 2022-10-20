@@ -1,10 +1,12 @@
 export interface BenchmarkConfig {
   id: string;
   manualCalculations: {
-    [key: string]: {
+    [promptId: string]: {
       isSuccess: boolean;
       completionTimeInMs: number;
       initiationTimeInMs?: number;
+      completionTimeStamp: number;
+      initiationTimeStamp: number;
     };
   };
   originalGameId: string;
@@ -18,6 +20,27 @@ export interface BenchmarkConfig {
   screenRecordingUploadStatus: boolean;
   rawVideoUploadStatus: boolean;
   activity?: string; // doing this cos' of MatSort not sorting JSON fields!
+}
+
+export enum KEY_CODE {
+  UP_ARROW = 38,
+  DOWN_ARROW = 40,
+  RIGHT_ARROW = 39,
+  LEFT_ARROW = 37,
+}
+
+export interface ManualCalculations {
+  [promptId: string]: ManualEntry;
+}
+
+export interface ManualEntry {
+  promptType?: string;
+  promptId?: string;
+  isSuccess?: boolean;
+  completionTimeInMs?: number;
+  initiationTimeStamp?: number;
+  completionTimeStamp?: number;
+  initiationTimeInMs?: number;
 }
 
 export interface BenchmarkRun {
