@@ -93,10 +93,10 @@
               </div>
               <div class="p-4 row">
                 <div class="col-md-6 d-flex justify-content-start">
-                  <button (click)="saveManualEntry(currentPrompt)" class="btn btn-primary">Save</button>
+                  <button (click)="currentPrompt= undefined" type="submit" class="btn btn-light text-primary">Back</button>
                 </div>
                 <div class="col-md-6 d-flex justify-content-end">
-                  <button (click)="currentPrompt= undefined" type="submit" class="btn btn-primary">Back</button>
+                  <button (click)="saveManualEntry(currentPrompt)" class="btn btn-primary">Save</button>
                 </div>
               </div>
             </form>
